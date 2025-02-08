@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
-import { supabase } from "@/lib/supabase";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,83 +21,46 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDecks } from "@/hooks/useDecks";
+import { supabase } from "@/lib/supabase";
 
-// Update type definition to match the API response
-interface Deck {
-  deck_id: number;
-  deck_name: string;
-  description?: string;
-  parent_deck_id?: number;
-  created_at: string;
-  user_id: string;
-}
+import { CreateDeckModal } from "./CreateDeckModal";
 
 export const DecksTable: FC = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   // Fetch decks with proper error handling
-  const { data: decks, isLoading, isError, error } = useQuery<Deck[]>({
-    queryKey: ["decks"],
-    queryFn: async () => {
-      // Add debug logs
-      console.log('Checking auth session...');
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session:', session); // This will help us see if we have a session
-
-      const accessToken = session?.access_token;
-      console.log('Access Token exists:', !!accessToken); // Check if we have a token
-
-      if (!accessToken) {
-        throw new Error('Not authenticated');
-      }
-
-      console.log('Making API request...');
-      const response = await fetch('/api/fsrs?action=get_decks', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Cookie': `sb-access-token=${accessToken}`
-        }
-      });
-
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API Error:', errorData); // Log any API errors
-        throw new Error(errorData.error || 'Failed to fetch decks');
-      }
-
-      return response.json();
-    },
-  });
+  const { data: decks, isLoading, isError, error } = useDecks();
 
   // Delete deck mutation with proper error handling
   const deleteDeck = useMutation({
     mutationFn: async (deckId: number) => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
 
       if (!accessToken) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
-      const response = await fetch('/api/fsrs', {
-        method: 'POST',
+      const response = await fetch("/api/fsrs", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Cookie': `sb-access-token=${accessToken}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          Cookie: `sb-access-token=${accessToken}`,
         },
         body: JSON.stringify({
-          action: 'delete_deck',
-          deck_id: deckId
-        })
+          action: "delete_deck",
+          deck_id: deckId,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete deck');
+
+        throw new Error(errorData.error || "Failed to delete deck");
       }
 
       return response.json();
@@ -122,9 +84,9 @@ export const DecksTable: FC = () => {
     return (
       <div className="flex flex-col items-center justify-center p-8 gap-4">
         <p className="text-destructive">
-          {error instanceof Error ? error.message : 'Error loading decks'}
+          {error instanceof Error ? error.message : "Error loading decks"}
         </p>
-        <Button 
+        <Button
           onClick={() => queryClient.invalidateQueries({ queryKey: ["decks"] })}
           variant="outline"
         >
@@ -137,15 +99,19 @@ export const DecksTable: FC = () => {
   // Empty state
   if (!decks?.length) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center py-8 flex flex-col gap-4">
         <p className="text-muted-foreground mb-4">No decks found</p>
-        <Button
-          className="flex gap-2 items-center"
-          variant="outline"
-          onClick={() => {/* TODO: Implement create deck */}}
-        >
-          <Plus className="h-4 w-4" /> Create your first deck
-        </Button>
+        <CreateDeckModal>
+          <Button
+            className="w-full flex gap-2 items-center"
+            variant="outline"
+            onClick={() => {
+              /* TODO: Implement create deck */
+            }}
+          >
+            <Plus className="h-4 w-4" /> Create your first deck
+          </Button>
+        </CreateDeckModal>
       </div>
     );
   }
@@ -183,10 +149,10 @@ export const DecksTable: FC = () => {
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(event) => event.stopPropagation()}
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
@@ -194,9 +160,12 @@ export const DecksTable: FC = () => {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm('Are you sure you want to delete this deck?')) {
+                      onClick={(event) => {
+                        event.stopPropagation();
+
+                        if (
+                          confirm("Are you sure you want to delete this deck?")
+                        ) {
                           deleteDeck.mutate(deck.deck_id);
                         }
                       }}
@@ -214,7 +183,9 @@ export const DecksTable: FC = () => {
         <Button
           className="w-full mt-8 flex gap-2 items-center"
           variant="outline"
-          onClick={() => {/* TODO: Implement create deck */}}
+          onClick={() => {
+            /* TODO: Implement create deck */
+          }}
         >
           <Plus className="h-4 w-4" /> Create New Deck
         </Button>

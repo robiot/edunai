@@ -16,7 +16,7 @@ const chatBubbleVariants = cva(
       isUser: {
         true: "bg-neutral-900 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900",
         false:
-          "bg-neutral-100 text-neutral-950 dark:bg-neutral-800 dark:text-neutral-50",
+          "bg-background text-neutral-950 dark:bg-neutral-800 dark:text-neutral-50",
       },
       animation: {
         none: "",

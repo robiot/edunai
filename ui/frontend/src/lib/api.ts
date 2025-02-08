@@ -1,10 +1,10 @@
 import axios from "axios";
 
-import { environment } from "./environment";
 import { supabase } from "./supabase";
 
 export const api = axios.create({
-  baseURL: environment.API_URL,
+  //nextjs
+  baseURL: window.location.origin + "/api",
   timeout: 30_000,
 });
 

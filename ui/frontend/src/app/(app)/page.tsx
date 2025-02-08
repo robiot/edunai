@@ -21,7 +21,7 @@ const DecksPage = () => {
           </div>
         </Container>
       </div>
-      <Container className="mt-10">
+      <Container className="mt-10 ">
         <DecksTable />
       </Container>
     </div>

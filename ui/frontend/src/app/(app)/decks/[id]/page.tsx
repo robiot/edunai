@@ -10,8 +10,20 @@ import { Chat } from "@/components/ui/chat";
 import { SelectSeparator } from "@/components/ui/select";
 
 const DeckPage = () => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat();
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    append,
+    stop,
+    isLoading,
+  } = useChat({
+    api: "/api/chat",
+    onResponse: (response) => {
+      console.log(response);
+    },
+  });
 
   return (
     <div className="flex flex-1 h-full flex-col md:flex-row">
@@ -30,6 +42,8 @@ const DeckPage = () => {
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
             isGenerating={isLoading}
+            append={append}
+            suggestions={["Create card", "Explain this"]}
             stop={stop}
           />
         </div>

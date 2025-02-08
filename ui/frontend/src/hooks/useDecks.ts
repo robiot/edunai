@@ -7,7 +7,7 @@ export const useDecks = () => {
   return useQuery({
     queryKey: ["decks"],
     queryFn: async () => {
-      const response = await api.get("/api/decks");
+      const response = await api.get("/decks");
 
       console.log(response);
 

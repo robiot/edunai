@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from datetime import datetime, timezone, date
 from fsrs import Card, Rating, Scheduler
@@ -7,6 +7,8 @@ import json
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
 
 # Load environment variables
 load_dotenv('.env.local')
@@ -73,22 +75,54 @@ class DeckCreate(BaseModel):
     description: Optional[str] = None
     parent_deck_id: Optional[int] = None
 
+# Add these at the top with other imports
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Verify JWT token and extract user_id"""
+    try:
+        token = credentials.credentials
+        jwt_secret = os.getenv("SUPABASE_JWT_SECRET")
+        
+        # Add options to handle audience verification
+        payload = jwt.decode(
+            token, 
+            jwt_secret, 
+            algorithms=["HS256"],
+            options={
+                "verify_aud": False  # Disable audience verification
+            }
+        )
+        
+        user_id = payload.get('sub')
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: no user id")
+        return user_id
+    except Exception as e:
+        print("JWT decode error:", str(e))  # Add debug logging
+        raise HTTPException(status_code=401, detail=str(e))
+
 def init_fsrs_routes(app: FastAPI):
     """Initialize FSRS routes"""
     
     @app.post("/api/decks", response_model=DeckBase)
-    async def create_deck(deck: DeckCreate):
+    async def create_deck(deck: DeckCreate, user_id: str = Depends(get_current_user)):
         """Create a new deck"""
-        result = supabase.table("decks").insert({
-            "deck_name": deck.deck_name,
-            "description": deck.description,
-            "parent_deck_id": deck.parent_deck_id
-        }).execute()
-        
-        if len(result.data) == 0:
-            raise HTTPException(status_code=500, detail="Failed to create deck")
+        try:
+            result = supabase.table("decks").insert({
+                "deck_name": deck.deck_name,
+                "description": deck.description,
+                "parent_deck_id": deck.parent_deck_id,
+                "user_id": user_id  # Add the authenticated user's ID
+            }).execute()
             
-        return result.data[0]
+            if len(result.data) == 0:
+                raise HTTPException(status_code=500, detail="Failed to create deck")
+            
+            return result.data[0]
+        except Exception as e:
+            print("Error creating deck:", str(e))
+            raise HTTPException(status_code=500, detail=str(e))
 
     @app.post("/api/flashcards", response_model=FlashcardResponse)
     async def create_flashcard(flashcard: FlashcardCreate):

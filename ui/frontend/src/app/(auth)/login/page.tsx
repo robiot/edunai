@@ -16,6 +16,7 @@ const LoginPage = () => {
           className="p-6 flex w-full"
           onClick={async () => {
             try {
+              console.log(`${window.location.origin}/auth/callback`);
               const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {

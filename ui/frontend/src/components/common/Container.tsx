@@ -7,7 +7,7 @@ export const Container: FC<{
   className?: string;
   noPadding?: boolean;
   size?: "xlarge" | "large" | "small";
-}> = ({ children, className, noPadding, size = "large" }) => {
+}> = ({ children, className, noPadding, size = "small" }) => {
   return (
     <div
       className={cn(
@@ -15,7 +15,7 @@ export const Container: FC<{
         !noPadding && "px-5 xl:px-0",
         size == "xlarge" && "max-w-6xl",
         size == "large" && "max-w-5xl",
-        size == "small" && "max-w-[58rem]",
+        size == "small" && "max-w-[38rem]",
 
         className,
       )}

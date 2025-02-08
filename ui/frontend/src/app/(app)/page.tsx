@@ -1,25 +1,28 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { Container } from "@/components/common/Container";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import { DecksTable } from "./_components/DecksTable";
 
 const ProductsPage = () => {
   return (
     <div>
-      <div className="bg-secondary py-7">
-        <h1 className="text-4xl">Hello Elliot</h1>
-        <h2 className="text-4xl">What can I help you with</h2>
+      <div className="bg-[#F3F6FA] py-24">
+        <Container className="text-center flex flex-col gap-3" size="small">
+          <h1 className="text-5xl font-bold">Hello Elliot</h1>
+          <h2 className="text-xl">What can I help you with</h2>
+          <div className="relative mt-7">
+            <Input placeholder="Ex. create deck, add card. What should I study." />
+
+            <Sparkles className="absolute right-5 top-1/2 -translate-y-1/2 text-foreground/50" />
+          </div>
+        </Container>
       </div>
-      <Container>
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-medium">Products</h1>
-          <Button className="gap-2 rounded-xl text-background">
-            <Plus />
-            Create New Product
-          </Button>
-        </div>
+      <Container className="mt-10">
+        <DecksTable />
       </Container>
     </div>
   );

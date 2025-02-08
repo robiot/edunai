@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --foreground: 0 0% 29%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -32,7 +32,7 @@
     --input: 0 0% 89%;
     --ring: 223 85% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.8rem;
   }
 }
 

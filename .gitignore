@@ -1,6 +1,11 @@
 node_modules
 target
-.env.*
+.env*
 .idea
 data
 .idea/
+
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class

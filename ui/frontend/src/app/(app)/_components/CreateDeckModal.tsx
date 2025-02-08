@@ -8,23 +8,27 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useDecks } from "@/hooks/useDecks";
 import { api } from "@/lib/api";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   emoji: z.string().min(1, "Emoji is required"),
+  description: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const dialogCloseReference = React.createRef<HTMLButtonElement>();
 
   const {
     register,
@@ -34,11 +38,21 @@ export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+  const decks = useDecks();
 
   const mutation = useMutation({
     mutationKey: ["createDeck"],
     mutationFn: async (data: FormData) => {
-      return api.post("/decks", data);
+      return api.post("/fsrs", {
+        action: "create_deck",
+        deck_name: data.name,
+        description: data.description,
+        emoji: data.emoji,
+      });
+    },
+    onSuccess: async () => {
+      await decks.refetch();
+      dialogCloseReference.current?.click();
     },
   });
 
@@ -49,6 +63,7 @@ export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogClose ref={dialogCloseReference} className="hidden" />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Deck</DialogTitle>
@@ -58,8 +73,21 @@ export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
             <label htmlFor="name">Name</label>
             <Input
               id="name"
-              className="border-2 rounded-md"
+              className="border-2 h-12 rounded-md"
               {...register("name")}
+            />
+            {errors.name && (
+              <span className="text-red-500 text-sm">
+                {errors.name.message}
+              </span>
+            )}
+          </div>
+          <div className="mt-4 flex flex-col gap-2">
+            <label htmlFor="name">Description</label>
+            <Input
+              id="name"
+              className="border-2 h-12 rounded-md"
+              {...register("description")}
             />
             {errors.name && (
               <span className="text-red-500 text-sm">
@@ -77,7 +105,7 @@ export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
                   <>
                     <Input
                       id="emoji"
-                      className="border-2 rounded-md"
+                      className="border-2 h-12 rounded-md"
                       value={field.value || ""}
                       onClick={() => setShowEmojiPicker(true)}
                       readOnly
@@ -103,7 +131,7 @@ export const CreateDeckModal: FC<{ children: ReactNode }> = ({ children }) => {
             )}
           </div>
           <Button type="submit" className="w-full mt-4 py-6" variant="filled">
-            Create Deck
+            {mutation.isPending ? "Creating Deck..." : "Create Deck"}
           </Button>
         </form>
       </DialogContent>

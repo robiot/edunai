@@ -5,6 +5,7 @@ import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 
+import Twemoji from "@/components/common/Twemoji";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -102,13 +103,7 @@ export const DecksTable: FC = () => {
       <div className="text-center py-8 flex flex-col gap-4">
         <p className="text-muted-foreground mb-4">No decks found</p>
         <CreateDeckModal>
-          <Button
-            className="w-full flex gap-2 items-center"
-            variant="outline"
-            onClick={() => {
-              /* TODO: Implement create deck */
-            }}
-          >
+          <Button className="w-full flex gap-2 items-center" variant="outline">
             <Plus className="h-4 w-4" /> Create your first deck
           </Button>
         </CreateDeckModal>
@@ -134,13 +129,18 @@ export const DecksTable: FC = () => {
               onClick={() => router.push(`/decks/${deck.deck_id}`)}
             >
               <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-medium">{deck.deck_name}</span>
-                  {deck.description && (
-                    <span className="text-sm text-muted-foreground">
-                      {deck.description}
-                    </span>
-                  )}
+                <div className="flex items-center gap-4">
+                  <div>
+                    <Twemoji emoji={deck.emoji} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{deck.deck_name}</span>
+                    {/* {deck.description && (
+                      <span className="text-sm text-muted-foreground">
+                        {deck.description}
+                      </span>
+                    )} */}
+                  </div>
                 </div>
               </TableCell>
               <TableCell className="text-muted-foreground">
@@ -180,15 +180,14 @@ export const DecksTable: FC = () => {
         </TableBody>
       </Table>
       <div>
-        <Button
-          className="w-full mt-8 flex gap-2 items-center"
-          variant="outline"
-          onClick={() => {
-            /* TODO: Implement create deck */
-          }}
-        >
-          <Plus className="h-4 w-4" /> Create New Deck
-        </Button>
+        <CreateDeckModal>
+          <Button
+            className="w-full mt-8 flex gap-2 items-center"
+            variant="outline"
+          >
+            <Plus className="h-4 w-4" /> Create New Deck
+          </Button>
+        </CreateDeckModal>
       </div>
     </>
   );

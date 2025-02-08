@@ -9,6 +9,7 @@ interface Deck {
   parent_deck_id?: number;
   created_at: string;
   user_id: string;
+  emoji: string;
 }
 
 export const useDecks = () => {

@@ -139,13 +139,14 @@ export async function GET(request: Request) {
 
 // Update handler functions to use the authenticated client
 async function handleCreateDeck(body: any, userId: string, supabaseAuth: any) {
-  const { deck_name, description, parent_deck_id } = body;
+  const { deck_name, description, parent_deck_id, emoji } = body;
 
   const { data, error } = await supabaseAuth
     .from("decks")
     .insert({
       deck_name,
       description,
+      emoji,
       parent_deck_id,
       user_id: userId,
     })

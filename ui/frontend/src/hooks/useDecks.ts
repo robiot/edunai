@@ -1,10 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 
-export const useDecks = useQuery({
-  queryKey: ["decks"],
-  queryFn: async () => {
-    const response = await fetch("/api/decks");
+import { api } from "@/lib/api";
 
-    return response.json();
-  },
-});
+type Deck = {};
+export const useDecks = () => {
+  return useQuery({
+    queryKey: ["decks"],
+    queryFn: async () => {
+      const response = await api.get("/api/decks");
+
+      console.log(response);
+
+      return response.data;
+    },
+  });
+};

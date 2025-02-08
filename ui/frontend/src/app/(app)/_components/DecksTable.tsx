@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -21,25 +21,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDecks } from "@/hooks/useDecks";
 
 export const DecksTable: FC = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const decks = useQuery({
-    queryKey: ["decks"],
-    queryFn: () => {
-      return [
-        {
-          id: "1",
-          name: "Mandarin",
-          emoji: "🇨🇳",
-          new: 10,
-          learn: 5,
-          due: 3,
-        },
-      ];
-    },
-  });
+  // const decks = useQuery({
+  //   queryKey: ["decks"],
+  //   queryFn: () => {
+  //     return [
+  //       {
+  //         id: "1",
+  //         name: "Mandarin",
+  //         emoji: "🇨🇳",
+  //         new: 10,
+  //         learn: 5,
+  //         due: 3,
+  //       },
+  //     ];
+  //   },
+  // });
+
+  const decks = useDecks();
+
   const deletedeck = useMutation({
     mutationKey: ["deleteDeck"],
     mutationFn: async (id: string) => {

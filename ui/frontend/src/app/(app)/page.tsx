@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 
 import { DecksTable } from "./_components/DecksTable";
 
-const ProductsPage = () => {
+const DecksPage = () => {
   return (
     <div className="pb-24">
       <div className="bg-[#F3F6FA] py-24">
@@ -28,4 +28,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+export default DecksPage;

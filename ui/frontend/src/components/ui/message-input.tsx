@@ -1,155 +1,170 @@
-"use client"
+/* eslint-disable unicorn/prevent-abbreviations */
+"use client";
 
-import React, { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
-import { ArrowUp, Paperclip, Square, X } from "lucide-react"
-import { omit } from "remeda"
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUp, Paperclip, Square, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { omit } from "remeda";
 
-import { cn } from "@/lib/utils"
-import { useAutosizeTextArea } from "@/hooks/use-autosize-textarea"
-import { Button } from "@/components/ui/button"
-import { FilePreview } from "@/components/ui/file-preview"
+import { Button } from "@/components/ui/button";
+import { FilePreview } from "@/components/ui/file-preview";
+import { useAutosizeTextArea } from "@/hooks/use-autosize-textarea";
+import { cn } from "@/lib/utils";
 
-interface MessageInputBaseProps
+interface MessageInputBaseProperties
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  value: string
-  submitOnEnter?: boolean
-  stop?: () => void
-  isGenerating: boolean
-  enableInterrupt?: boolean
+  value: string;
+  submitOnEnter?: boolean;
+  stop?: () => void;
+  isGenerating: boolean;
+  enableInterrupt?: boolean;
 }
 
-interface MessageInputWithoutAttachmentProps extends MessageInputBaseProps {
-  allowAttachments?: false
+interface MessageInputWithoutAttachmentProperties
+  extends MessageInputBaseProperties {
+  allowAttachments?: false;
 }
 
-interface MessageInputWithAttachmentsProps extends MessageInputBaseProps {
-  allowAttachments: true
-  files: File[] | null
-  setFiles: React.Dispatch<React.SetStateAction<File[] | null>>
+interface MessageInputWithAttachmentsProperties
+  extends MessageInputBaseProperties {
+  allowAttachments: true;
+  files: File[] | null;
+  setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
 }
 
-type MessageInputProps =
-  | MessageInputWithoutAttachmentProps
-  | MessageInputWithAttachmentsProps
+type MessageInputProperties =
+  | MessageInputWithoutAttachmentProperties
+  | MessageInputWithAttachmentsProperties;
 
 export function MessageInput({
   placeholder = "Ask AI...",
   className,
-  onKeyDown: onKeyDownProp,
+  onKeyDown: onKeyDownProperty,
   submitOnEnter = true,
   stop,
   isGenerating,
   enableInterrupt = true,
-  ...props
-}: MessageInputProps) {
-  const [isDragging, setIsDragging] = useState(false)
-  const [showInterruptPrompt, setShowInterruptPrompt] = useState(false)
+  ...properties
+}: MessageInputProperties) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [showInterruptPrompt, setShowInterruptPrompt] = useState(false);
 
   useEffect(() => {
     if (!isGenerating) {
-      setShowInterruptPrompt(false)
+      setShowInterruptPrompt(false);
     }
-  }, [isGenerating])
+  }, [isGenerating]);
 
   const addFiles = (files: File[] | null) => {
-    if (props.allowAttachments) {
-      props.setFiles((currentFiles) => {
+    if (properties.allowAttachments) {
+      properties.setFiles((currentFiles) => {
         if (currentFiles === null) {
-          return files
+          return files;
         }
 
         if (files === null) {
-          return currentFiles
+          return currentFiles;
         }
 
-        return [...currentFiles, ...files]
-      })
+        return [...currentFiles, ...files];
+      });
     }
-  }
+  };
 
   const onDragOver = (event: React.DragEvent) => {
-    if (props.allowAttachments !== true) return
-    event.preventDefault()
-    setIsDragging(true)
-  }
+    if (properties.allowAttachments !== true) return;
+
+    event.preventDefault();
+    setIsDragging(true);
+  };
 
   const onDragLeave = (event: React.DragEvent) => {
-    if (props.allowAttachments !== true) return
-    event.preventDefault()
-    setIsDragging(false)
-  }
+    if (properties.allowAttachments !== true) return;
+
+    event.preventDefault();
+    setIsDragging(false);
+  };
 
   const onDrop = (event: React.DragEvent) => {
-    setIsDragging(false)
-    if (props.allowAttachments !== true) return
-    event.preventDefault()
-    const dataTransfer = event.dataTransfer
-    if (dataTransfer.files.length) {
-      addFiles(Array.from(dataTransfer.files))
+    setIsDragging(false);
+
+    if (properties.allowAttachments !== true) return;
+
+    event.preventDefault();
+    const { dataTransfer } = event;
+
+    if (dataTransfer.files.length > 0) {
+      addFiles(Array.from(dataTransfer.files));
     }
-  }
+  };
 
   const onPaste = (event: React.ClipboardEvent) => {
-    const items = event.clipboardData?.items
-    if (!items) return
+    const items = event.clipboardData?.items;
 
-    const text = event.clipboardData.getData("text")
-    if (text && text.length > 500 && props.allowAttachments) {
-      event.preventDefault()
-      const blob = new Blob([text], { type: "text/plain" })
+    if (!items) return;
+
+    const text = event.clipboardData.getData("text");
+
+    if (text && text.length > 500 && properties.allowAttachments) {
+      event.preventDefault();
+      const blob = new Blob([text], { type: "text/plain" });
       const file = new File([blob], "Pasted text", {
         type: "text/plain",
         lastModified: Date.now(),
-      })
-      addFiles([file])
-      return
+      });
+
+      addFiles([file]);
+
+      return;
     }
 
     const files = Array.from(items)
       .map((item) => item.getAsFile())
-      .filter((file) => file !== null)
+      .filter((file) => file !== null);
 
-    if (props.allowAttachments && files.length > 0) {
-      addFiles(files)
+    if (properties.allowAttachments && files.length > 0) {
+      addFiles(files);
     }
-  }
+  };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (submitOnEnter && event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault()
+      event.preventDefault();
 
       if (isGenerating && stop && enableInterrupt) {
         if (showInterruptPrompt) {
-          stop()
-          setShowInterruptPrompt(false)
-          event.currentTarget.form?.requestSubmit()
+          stop();
+          setShowInterruptPrompt(false);
+          event.currentTarget.form?.requestSubmit();
         } else if (
-          props.value ||
-          (props.allowAttachments && props.files?.length)
+          properties.value ||
+          (properties.allowAttachments && properties.files?.length)
         ) {
-          setShowInterruptPrompt(true)
-          return
+          setShowInterruptPrompt(true);
+
+          return;
         }
       }
 
-      event.currentTarget.form?.requestSubmit()
+      event.currentTarget.form?.requestSubmit();
     }
 
-    onKeyDownProp?.(event)
-  }
+    onKeyDownProperty?.(event);
+  };
 
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const textAreaReference = useRef<HTMLTextAreaElement | null>(null);
 
   const showFileList =
-    props.allowAttachments && props.files && props.files.length > 0
+    properties.allowAttachments &&
+    properties.files &&
+    properties.files.length > 0;
 
   useAutosizeTextArea({
-    ref: textAreaRef,
+    ref: textAreaReference,
     maxHeight: 240,
     borderWidth: 1,
-    dependencies: [props.value, showFileList],
-  })
+    dependencies: [properties.value, showFileList],
+  });
 
   return (
     <div
@@ -168,41 +183,43 @@ export function MessageInput({
       <textarea
         aria-label="Write your prompt here"
         placeholder={placeholder}
-        ref={textAreaRef}
+        ref={textAreaReference}
         onPaste={onPaste}
         onKeyDown={onKeyDown}
         className={cn(
-          "z-10 w-full grow resize-none rounded-xl border border-neutral-200 bg-white p-3 pr-24 text-sm ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:border-neutral-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:border-neutral-50",
+          "z-10 w-full grow resize-none rounded-xl border border-neutral-200 bg-white p-3 pr-24 ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:border-neutral-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:border-neutral-50",
           showFileList && "pb-16",
-          className
+          className,
         )}
-        {...(props.allowAttachments
-          ? omit(props, ["allowAttachments", "files", "setFiles"])
-          : omit(props, ["allowAttachments"]))}
+        {...(properties.allowAttachments
+          ? omit(properties, ["allowAttachments", "files", "setFiles"])
+          : omit(properties, ["allowAttachments"]))}
       />
 
-      {props.allowAttachments && (
+      {properties.allowAttachments && (
         <div className="absolute inset-x-3 bottom-0 z-20 overflow-x-scroll py-3">
           <div className="flex space-x-3">
             <AnimatePresence mode="popLayout">
-              {props.files?.map((file) => {
+              {properties.files?.map((file) => {
                 return (
                   <FilePreview
                     key={file.name + String(file.lastModified)}
                     file={file}
                     onRemove={() => {
-                      props.setFiles((files) => {
-                        if (!files) return null
+                      properties.setFiles((files) => {
+                        if (!files) return null;
 
                         const filtered = Array.from(files).filter(
-                          (f) => f !== file
-                        )
-                        if (filtered.length === 0) return null
-                        return filtered
-                      })
+                          (f) => f !== file,
+                        );
+
+                        if (filtered.length === 0) return null;
+
+                        return filtered;
+                      });
                     }}
                   />
-                )
+                );
               })}
             </AnimatePresence>
           </div>
@@ -210,7 +227,7 @@ export function MessageInput({
       )}
 
       <div className="absolute right-3 top-3 z-20 flex gap-2">
-        {props.allowAttachments && (
+        {properties.allowAttachments && (
           <Button
             type="button"
             size="icon"
@@ -218,8 +235,9 @@ export function MessageInput({
             className="h-8 w-8"
             aria-label="Attach a file"
             onClick={async () => {
-              const files = await showFileUploadDialog()
-              addFiles(files)
+              const files = await showFileUploadDialog();
+
+              addFiles(files);
             }}
           >
             <Paperclip className="h-4 w-4" />
@@ -241,25 +259,27 @@ export function MessageInput({
             size="icon"
             className="h-8 w-8 transition-opacity"
             aria-label="Send message"
-            disabled={props.value === "" || isGenerating}
+            disabled={properties.value === "" || isGenerating}
           >
             <ArrowUp className="h-5 w-5" />
           </Button>
         )}
       </div>
 
-      {props.allowAttachments && <FileUploadOverlay isDragging={isDragging} />}
+      {properties.allowAttachments && (
+        <FileUploadOverlay isDragging={isDragging} />
+      )}
     </div>
-  )
+  );
 }
-MessageInput.displayName = "MessageInput"
+MessageInput.displayName = "MessageInput";
 
-interface InterruptPromptProps {
-  isOpen: boolean
-  close: () => void
+interface InterruptPromptProperties {
+  isOpen: boolean;
+  close: () => void;
 }
 
-function InterruptPrompt({ isOpen, close }: InterruptPromptProps) {
+function InterruptPrompt({ isOpen, close }: InterruptPromptProperties) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -288,14 +308,14 @@ function InterruptPrompt({ isOpen, close }: InterruptPromptProps) {
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-interface FileUploadOverlayProps {
-  isDragging: boolean
+interface FileUploadOverlayProperties {
+  isDragging: boolean;
 }
 
-function FileUploadOverlay({ isDragging }: FileUploadOverlayProps) {
+function FileUploadOverlay({ isDragging }: FileUploadOverlayProperties) {
   return (
     <AnimatePresence>
       {isDragging && (
@@ -312,27 +332,28 @@ function FileUploadOverlay({ isDragging }: FileUploadOverlayProps) {
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 function showFileUploadDialog() {
-  const input = document.createElement("input")
+  const input = document.createElement("input");
 
-  input.type = "file"
-  input.multiple = true
-  input.accept = "*/*"
-  input.click()
+  input.type = "file";
+  input.multiple = true;
+  input.accept = "*/*";
+  input.click();
 
   return new Promise<File[] | null>((resolve) => {
-    input.onchange = (e) => {
-      const files = (e.currentTarget as HTMLInputElement).files
+    input.addEventListener("change", (e) => {
+      const { files } = e.currentTarget as HTMLInputElement;
 
       if (files) {
-        resolve(Array.from(files))
-        return
+        resolve(Array.from(files));
+
+        return;
       }
 
-      resolve(null)
-    }
-  })
+      resolve(null);
+    });
+  });
 }

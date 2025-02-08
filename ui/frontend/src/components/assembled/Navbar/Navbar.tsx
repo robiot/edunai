@@ -36,7 +36,7 @@ export const Navbar: FC = () => {
         className="w-full flex h-full justify-between items-center px-4"
         // size="large"
       >
-        <h1 className="text-2xl text-[#605BFB] font-bold">Edunai</h1>
+        <h1 className="text-2xl text-[#605BFB] font-extrabold">edunai</h1>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

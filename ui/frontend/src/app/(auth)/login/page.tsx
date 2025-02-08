@@ -9,10 +9,11 @@ import { supabase } from "@/lib/supabase";
 const LoginPage = () => {
   return (
     <div className="flex h-screen w-full items-center justify-center flex-col gap-7">
-      <h1 className="text-4xl text-[#605BFB] font-bold">Edunai</h1>
+      <h1 className="text-4xl text-[#605BFB] font-extrabold">edunai</h1>
 
       <Card className="p-6 px-8 w-full max-w-[25rem]">
         <Button
+          variant="filled"
           className="p-6 flex w-full"
           onClick={async () => {
             try {

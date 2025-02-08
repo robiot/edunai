@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
+import { WalletCards } from "lucide-react";
 
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
@@ -14,8 +15,14 @@ const DeckPage = () => {
 
   return (
     <div className="flex flex-1 h-full flex-col md:flex-row">
-      <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center">
-        <div className="flex h-[calc(100vh-4rem)]">
+      <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
+        <div className="p-4 flex w-full">
+          <Button className="w-full flex gap-2">
+            <WalletCards size={24} />
+            Add card to deck
+          </Button>
+        </div>
+        <div className="flex h-[calc(100vh-9rem)]">
           <Chat
             messages={messages}
             input={input}
@@ -39,12 +46,15 @@ const DeckPage = () => {
           </div>
 
           <div className="flex flex-1 gap-2 items-end justify-center py-6">
-            <Button className="bg-red-600 border-4 border-red-700 hover:bg-red-700">
+            <Button
+              className="bg-red-600 border-4 border-red-700 hover:bg-red-700 text-white/80 hover:text-white/60"
+              size="sm"
+            >
               1. Again
             </Button>
-            <Button className="bg-primary/70">2. Good</Button>
-            <Button>3. Hard</Button>
-            <Button>4. Easy</Button>
+            <Button size="sm">2. Good</Button>
+            <Button size="sm">3. Hard</Button>
+            <Button size="sm">4. Easy</Button>
           </div>
         </div>
       </Container>

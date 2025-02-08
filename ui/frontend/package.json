@@ -36,6 +36,7 @@
     "react-hook-form": "^7.52.1",
     "react-twemoji": "^0.6.0",
     "tailwind-merge": "^2.4.0",
+    "ts-fsrs": "^4.6.1",
     "twemoji": "^14.0.2",
     "zod": "^3.23.8"
   },

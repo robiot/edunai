@@ -1,4 +1,3 @@
-export const MetaTitle = "Web3 Checkout";
+export const MetaTitle = "Edunai";
 
-export const MetaDescription =
-  "Trusted Easy to Setup Cross-Border Checkout Page";
+export const MetaDescription = "Learn anything anywhere anytime with AI";

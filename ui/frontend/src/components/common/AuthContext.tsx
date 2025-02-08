@@ -5,7 +5,7 @@ import { FC, ReactNode, useEffect } from "react";
 
 export const AuthContext: FC<{ children: ReactNode }> = ({ children }) => {
   const account = {
-    status: "disconnected",
+    status: "connected",
   };
   const pathname = usePathname();
   const router = useRouter();

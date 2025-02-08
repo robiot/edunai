@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { FC } from "react";
 import { useDropzone } from "react-dropzone";
 
-import { enviroment } from "@/lib/enviroment";
 import { cn } from "@/lib/utils";
 
 export const ImageDrop: FC = () => {
@@ -12,17 +11,6 @@ export const ImageDrop: FC = () => {
       const formData = new FormData();
 
       formData.append("file", file);
-
-      const response = await fetch(`${enviroment.BACKEND_URL}/ipfs/upload`, {
-        method: "POST",
-        body: formData,
-      }).catch((_error) => {
-        alert("Error occured");
-      });
-
-      if (!response) return;
-
-      const json = response.json();
 
       // todo: implement
     },

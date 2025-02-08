@@ -2,7 +2,7 @@ import "@/styles/index.css";
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
-import { M_PLUS_Rounded_1c } from "next/font/google";
+import { Lato } from "next/font/google";
 import { ReactNode } from "react";
 
 import { ClientProviders } from "@/components/ClientProviders";
@@ -10,11 +10,11 @@ import { Analytics } from "@/components/common/Analytics";
 import { MetaDescription, MetaTitle } from "@/lib/content/meta";
 import { cn } from "@/lib/utils";
 
-const inter = M_PLUS_Rounded_1c({
+const inter = Lato({
   subsets: ["latin"],
   // weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   // weight: ["400"],
-  weight: ["100", "300", "400", "500", "700", "800", "900"],
+  weight: ["100", "300", "400", "700", "900"],
 });
 
 const url = "https://edunai.com";

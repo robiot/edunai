@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
@@ -51,6 +51,7 @@ export const Navbar: FC = () => {
               className="cursor-pointer text-destructive focus:text-destructive"
               onClick={handleLogout}
             >
+              <LogOut className="w-5 h-5 mr-2" />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

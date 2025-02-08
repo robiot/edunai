@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 29%;
+    --foreground: 0 0% 39%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -23,16 +23,16 @@
     --muted-foreground: 0 0% 69%;
 
     --accent: 242 95% 67%%;
-    --accent-foreground: 0 0% 0%;
+    --accent-foreground: 0 0% 19%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 89%;
-    --input: 0 0% 89%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
     --ring: 223 85% 55%;
 
-    --radius: 0.8rem;
+    --radius: 0.9rem;
   }
 }
 

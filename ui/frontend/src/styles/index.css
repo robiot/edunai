@@ -10,3 +10,16 @@ html {
   font-size: 21px;
   color-scheme: light;
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-foreground/20;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-foreground/40 rounded-full;
+}

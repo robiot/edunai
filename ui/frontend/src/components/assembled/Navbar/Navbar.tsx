@@ -2,7 +2,6 @@ import { ChevronDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
-import { Container } from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -33,9 +32,9 @@ export const Navbar: FC = () => {
 
   return (
     <div className="w-full sticky inset-0 border-b-border border-b h-16 bg-background">
-      <Container
-        className="w-full flex h-full justify-between items-center"
-        size="large"
+      <div
+        className="w-full flex h-full justify-between items-center px-4"
+        // size="large"
       >
         <h1 className="text-2xl text-[#605BFB] font-bold">Edunai</h1>
 
@@ -56,7 +55,7 @@ export const Navbar: FC = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </Container>
+      </div>
     </div>
   );
 };

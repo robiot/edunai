@@ -9,7 +9,7 @@ import { DecksTable } from "./_components/DecksTable";
 
 const ProductsPage = () => {
   return (
-    <div>
+    <div className="pb-24">
       <div className="bg-[#F3F6FA] py-24">
         <Container className="text-center flex flex-col gap-3" size="small">
           <h1 className="text-5xl font-bold">Hello Elliot</h1>

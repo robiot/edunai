@@ -7,9 +7,11 @@ import { AuthContext } from "@/components/common/AuthContext";
 const AppLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <AuthContext>
-      <Navbar />
+      <div className="min-h-screen flex flex-col flex-1">
+        <Navbar />
 
-      <div className="mb-24">{children}</div>
+        {children}
+      </div>
     </AuthContext>
   );
 };

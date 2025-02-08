@@ -16,7 +16,6 @@ export const AuthContext: FC<{ children: ReactNode }> = ({ children }) => {
     const checkSession = async () => {
       const {
         data: { session: currentSession },
-        error,
       } = await supabase.auth.getSession();
 
       setSession(currentSession);

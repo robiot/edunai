@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FC } from "react";
 
 import Twemoji from "@/components/common/Twemoji";
@@ -21,16 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const deleteDeck = async (id: string) => {
-  const response = await fetch(`/api/decks/${id}`, { method: "DELETE" });
-
-  if (!response.ok) throw new Error("Failed to delete deck");
-
-  return response.json();
-};
-
 export const DecksTable: FC = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const decks = useQuery({
     queryKey: ["decks"],
     queryFn: () => {
@@ -46,9 +40,15 @@ export const DecksTable: FC = () => {
       ];
     },
   });
-  const mutation = useMutation({
+  const deletedeck = useMutation({
     mutationKey: ["deleteDeck"],
-    mutationFn: deleteDeck,
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/decks/${id}`, { method: "DELETE" });
+
+      if (!response.ok) throw new Error("Failed to delete deck");
+
+      return response.json();
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["decks"] }),
   });
 
@@ -66,7 +66,12 @@ export const DecksTable: FC = () => {
         </TableHeader>
         <TableBody>
           {decks.data?.map((deck: any) => (
-            <TableRow key={deck.id}>
+            <TableRow
+              key={deck.id}
+              onClick={() => {
+                router.push(`/decks/${deck.id}`);
+              }}
+            >
               <TableCell className="font-medium">
                 <div className="flex gap-2">
                   <Twemoji emoji={deck.emoji || ""} />
@@ -84,7 +89,10 @@ export const DecksTable: FC = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => deletedeck.mutate(deck.id)}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" /> Remove Deck
                     </DropdownMenuItem>
                   </DropdownMenuContent>

@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  postgres:
+       image: postgres
+       ports:
+         - "5432:5432"
+       environment:
+         - POSTGRES_PASSWORD=root
+       volumes:
+         - ./data/postgres:/var/lib/postgresql/data
+
+  # redis:
+  #     image: "redis:6.2.13-alpine3.18"
+  #     environment:
+  #         - ALLOW_EMPTY_PASSWORD=yes
+  #     volumes:
+  #         - ./data/redis:/bitnami/redis/data
+  #     ports:
+  #         - "6379:6379"
+
+  frontend:
+    image: "node:20.15.1-slim"
+    volumes:
+      - .:/app
+    working_dir: /app/ui/frontend
+    command: "npm run dev"
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/
+
+  backend:
+    image: "node:hydrogen-alpine"
+    tty: true
+    volumes:
+      - ".:/app"
+    working_dir: "/app/services/backend"
+    command: "npm run dev"
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+volumes:
+  backend-target:

@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 151 79% 32%;
+    --primary-foreground: 0 0% 89%;
+
+    --secondary: 0 0% 87%;
+    --secondary-foreground: 0 0% 37%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 69%;
+
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 223 85% 55%;
+
+    --radius: 0.5rem;
+  }
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 2147483647s;
+  -webkit-text-fill-color: hsl(var(--secondary-foreground)) !important;
+}

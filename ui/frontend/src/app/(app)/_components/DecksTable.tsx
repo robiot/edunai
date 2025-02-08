@@ -1,10 +1,17 @@
 "use client";
 
-import { MoreHorizontal, Plus } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { FC } from "react";
 
 import Twemoji from "@/components/common/Twemoji";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -14,7 +21,37 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+const deleteDeck = async (id: string) => {
+  const response = await fetch(`/api/decks/${id}`, { method: "DELETE" });
+
+  if (!response.ok) throw new Error("Failed to delete deck");
+
+  return response.json();
+};
+
 export const DecksTable: FC = () => {
+  const queryClient = useQueryClient();
+  const decks = useQuery({
+    queryKey: ["decks"],
+    queryFn: () => {
+      return [
+        {
+          id: "1",
+          name: "Mandarin",
+          emoji: "🇨🇳",
+          new: 10,
+          learn: 5,
+          due: 3,
+        },
+      ];
+    },
+  });
+  const mutation = useMutation({
+    mutationKey: ["deleteDeck"],
+    mutationFn: deleteDeck,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["decks"] }),
+  });
+
   return (
     <>
       <Table>
@@ -28,29 +65,41 @@ export const DecksTable: FC = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">
-              <div className="flex gap-2">
-                <Twemoji emoji="🇨🇳"></Twemoji>
-                Mandarin
-              </div>
-            </TableCell>
-            <TableCell>2</TableCell>
-            <TableCell>1</TableCell>
-            <TableCell>2</TableCell>
-            <TableCell>
-              <MoreHorizontal />
-            </TableCell>
-          </TableRow>
+          {decks.data?.map((deck: any) => (
+            <TableRow key={deck.id}>
+              <TableCell className="font-medium">
+                <div className="flex gap-2">
+                  <Twemoji emoji={deck.emoji || ""} />
+                  {deck.name}
+                </div>
+              </TableCell>
+              <TableCell>{deck.new}</TableCell>
+              <TableCell>{deck.learn}</TableCell>
+              <TableCell>{deck.due}</TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" /> Remove Deck
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
       <div>
         <Button
-          className="w-full  mt-8 flex gap-2 items-center border-2"
+          className="w-full mt-8 flex gap-2 items-center border-2"
           variant="outline"
         >
-          <Plus />
-          Create Deck
+          <Plus /> Create Deck
         </Button>
       </div>
     </>

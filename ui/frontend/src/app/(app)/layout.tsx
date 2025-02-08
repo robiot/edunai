@@ -8,7 +8,8 @@ const AppLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <AuthContext>
       <Navbar />
-      {children}
+
+      <div className="mb-24">{children}</div>
     </AuthContext>
   );
 };

@@ -2,10 +2,11 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { FC, ReactNode, useEffect } from "react";
-import { useAccount } from "wagmi";
 
 export const AuthContext: FC<{ children: ReactNode }> = ({ children }) => {
-  const account = useAccount();
+  const account = {
+    status: "disconnected",
+  };
   const pathname = usePathname();
   const router = useRouter();
 

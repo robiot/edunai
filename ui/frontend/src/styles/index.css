@@ -5,3 +5,7 @@
 html {
   scroll-behavior: smooth;
 }
+
+:root {
+  font-size: 19px;
+}

@@ -167,12 +167,7 @@ export function MessageInput({
   });
 
   return (
-    <div
-      className="relative flex w-full"
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-    >
+    <div className="relative flex w-full">
       {enableInterrupt && (
         <InterruptPrompt
           isOpen={showInterruptPrompt}
@@ -187,7 +182,7 @@ export function MessageInput({
         onPaste={onPaste}
         onKeyDown={onKeyDown}
         className={cn(
-          "z-10 w-full grow resize-none rounded-xl border border-neutral-200 bg-white p-3 pr-24 ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:border-border focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:border-neutral-50",
+          "z-10 w-full grow resize-none border-0 p-4 pr-24 min-h-[60px] ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400",
           showFileList && "pb-16",
           className,
         )}
@@ -226,7 +221,7 @@ export function MessageInput({
         </div>
       )}
 
-      <div className="absolute right-3 top-3 z-20 flex gap-2">
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex gap-2">
         {properties.allowAttachments && (
           <Button
             type="button"

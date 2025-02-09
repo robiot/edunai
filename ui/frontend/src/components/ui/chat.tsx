@@ -110,30 +110,28 @@ export function Chat({
 
   return (
     <ChatContainer className={className}>
-      {isEmpty && append && suggestions ? (
-        <PromptSuggestions
-          label="Try these prompts ✨"
-          append={append}
-          suggestions={suggestions}
-        />
-      ) : null}
-
-      {messages.length > 0 ? (
-        <ChatMessages messages={messages}>
-          <MessageList
-            messages={messages}
-            isTyping={isTyping}
-            messageOptions={messageOptions}
-            //@ts-ignore
-            toolInvocations={messages
-              .map((m) => m.toolInvocations)
-              .filter(Boolean)}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {isEmpty && append && suggestions ? (
+          <PromptSuggestions
+            label="Try these prompts ✨"
+            append={append}
+            suggestions={suggestions}
           />
-        </ChatMessages>
-      ) : null}
+        ) : null}
+
+        {messages.length > 0 ? (
+          <ChatMessages messages={messages}>
+            <MessageList
+              messages={messages}
+              isTyping={isTyping}
+              messageOptions={messageOptions}
+            />
+          </ChatMessages>
+        ) : null}
+      </div>
 
       <ChatForm
-        className="mt-auto"
+        className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950"
         isPending={isGenerating || isTyping}
         handleSubmit={handleSubmit}
       >
@@ -142,8 +140,6 @@ export function Chat({
             value={input}
             onChange={handleInputChange}
             allowAttachments={false}
-            // files={undefined}
-            // setFiles={setFiles}
             stop={stop}
             isGenerating={isGenerating}
           />
@@ -170,7 +166,7 @@ export function ChatMessages({
 
   return (
     <div
-      className="grid grid-cols-1 overflow-y-auto pb-4 px-2"
+      className="grid grid-cols-1 overflow-y-auto px-2"
       ref={containerRef}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}
@@ -204,7 +200,7 @@ export const ChatContainer = forwardRef<
   return (
     <div
       ref={reference}
-      className={cn("grid max-h-full w-full grid-rows-[1fr_auto]", className)}
+      className={cn("flex flex-col h-full w-full", className)}
       {...properties}
     />
   );

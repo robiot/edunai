@@ -2,12 +2,14 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Chat } from "@/components/ui/chat";
 import { useAIActions } from "@/hooks/useAIActions";
 import { extractToolInvocations } from "@/lib/tool-invocations";
 import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChatCollapseContext } from '@/contexts/ChatCollapseContext';
 
 // Update interface for the AiChat component props
 interface AiChatProperties {
@@ -167,40 +169,67 @@ export const AiChat = ({
     setInput(defaultPrompt || "");
   }, [defaultPrompt]);
 
-  return (
-    <>
-      {/* Show processing state or error if any */}
-      {isProcessing && (
-        <div className="p-2 text-sm text-blue-600">
-          Processing AI response...
-        </div>
-      )}
-      {error && (
-        <div className="p-2 text-sm text-red-600">Error: {error.message}</div>
-      )}
+  // Add state for collapse
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-      {/* Chat section */}
-      <div
-        className={cn(fullHeight ? "flex h-[calc(100vh-9rem)]" : "flex w-full")}
-      >
-        <Chat
-          {...(fullHeight
-            ? {
-                append,
-                suggestions: ["Create card", "Explain this"],
-              }
-            : {
-                isGenerating: isChatLoading, // gotta have smt here
-              })}
-          messages={messages as any}
-          input={input}
-          className="py-5 px-4"
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          isGenerating={isChatLoading}
-          stop={stop}
-        />
+  return (
+    <ChatCollapseContext.Provider value={{ isCollapsed }}>
+      <div data-ai-chat className="flex flex-col h-full">
+        {/* Show processing state or error if any */}
+        {isProcessing && !isCollapsed && (
+          <div className="p-2 text-sm text-blue-600">
+            Processing AI response...
+          </div>
+        )}
+        {error && !isCollapsed && (
+          <div className="p-2 text-sm text-red-600">Error: {error.message}</div>
+        )}
+
+        {/* Chat section with collapse functionality */}
+        <div className="flex flex-1 relative">
+          {/* Enhanced Collapse/Expand button */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={cn(
+              "absolute -right-10 top-0",
+              "rounded-r",
+              "p-2 h-16 flex items-center justify-center",
+              "transition-colors duration-200",
+              "z-50"
+            )}
+            aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
+          >
+            {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+          </button>
+
+          {/* Chat content with improved transition */}
+          <div
+            className={cn(
+              "transition-all duration-200 flex flex-col",
+              fullHeight ? "h-[calc(100vh-9rem)]" : "h-full",
+              isCollapsed ? "w-0 overflow-hidden" : "w-72",
+            )}
+          >
+            <Chat
+              {...(fullHeight
+                ? {
+                    append,
+                    suggestions: ["Create card", "Explain this"],
+                  }
+                : {
+                    isGenerating: isChatLoading,
+                  })}
+              messages={messages as any}
+              input={input}
+              className="flex-1 flex flex-col"
+              handleInputChange={handleInputChange}
+              handleSubmit={handleSubmit}
+              isGenerating={isChatLoading}
+              stop={stop}
+            />
+          </div>
+        </div>
       </div>
-    </>
+    </ChatCollapseContext.Provider>
   );
 };

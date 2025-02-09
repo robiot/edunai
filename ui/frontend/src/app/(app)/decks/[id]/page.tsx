@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import { SelectSeparator } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
+import { useChatCollapse } from '@/contexts/ChatCollapseContext';
 
 import { TextToSpeech } from "./_components/TTS";
 
@@ -45,6 +46,7 @@ const DeckPage = () => {
   const [reviewAll, setReviewAll] = useState(false);
 
   const { session } = useAuth();
+  const { isCollapsed } = useChatCollapse();
 
   // Function to fetch due cards
 
@@ -187,13 +189,16 @@ const DeckPage = () => {
     [currentCard, rateMutation],
   );
 
-  // Add space bar handler for flipping cards
+  // Update the space bar handler to check for AI chat interaction
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      // Check if we're focused on an input element or textarea
+      // Check if we're focused on an input element, textarea, or within the AI chat component
       if (
         event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
+        event.target instanceof HTMLTextAreaElement ||
+        (!isCollapsed && // Only check for AI chat if it's not collapsed
+          event.target instanceof HTMLElement && 
+          event.target.closest('[data-ai-chat]'))
       ) {
         return;
       }
@@ -227,15 +232,13 @@ const DeckPage = () => {
     window.addEventListener("keypress", handleKeyPress);
 
     return () => window.removeEventListener("keypress", handleKeyPress);
-  }, [currentCard, isCardFlipped, handleRate]);
+  }, [currentCard, isCardFlipped, handleRate, isCollapsed]);
 
   return (
     <div className="flex flex-1 h-full flex-col md:flex-row">
-      <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
+      <Card className="bg-[#F3F6FA] rounded-none flex-shrink-0 flex items-end justify-center flex-col relative">
         <div className="flex h-[calc(100vh-9rem)]">
-          <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
-            <AiChat deckId={deckId} fullHeight />
-          </Card>
+          <AiChat deckId={deckId} fullHeight />
         </div>
       </Card>
       <Container className="h-[unset] flex-1 rounded-none flex justify-center">

@@ -207,31 +207,20 @@ async function handleCreateFlashcard(body: any, supabaseAuth: any) {
 }
 
 async function handleReviewFlashcard(body: any, supabaseAuth: any) {
-  const { card_id, rating } = body;
-
-  // Get current card state
-  const { data: cardData, error: cardError } = await supabaseAuth
-    .from("cards")
-    .select("*")
-    .eq("card_id", card_id)
-    .single();
-
-  if (cardError || !cardData) {
-    return NextResponse.json({ error: "Card not found" }, { status: 404 });
-  }
+  const { card_id, rating, card_state } = body;
 
   try {
     // Create FSRS card with current state
     const card = {
-      due: new Date(cardData.next_review),
-      stability: cardData.interval,
-      difficulty: cardData.ease_factor,
-      elapsed_days: 0,
-      scheduled_days: 0,
-      reps: cardData.repetitions,
-      lapses: 0,
-      state: State.Review,
-      last_review: new Date(),
+      due: new Date(card_state.last_review),
+      stability: card_state.stability,
+      difficulty: card_state.difficulty,
+      elapsed_days: card_state.elapsed_days,
+      scheduled_days: card_state.scheduled_days,
+      reps: card_state.reps,
+      lapses: card_state.lapses,
+      state: State[card_state.state as keyof typeof State],
+      last_review: new Date(card_state.last_review)
     } as Card;
 
     // Process the review
@@ -240,15 +229,21 @@ async function handleReviewFlashcard(body: any, supabaseAuth: any) {
     const result = scheduling_cards[rating as Rating];
     const updatedCard = result.card;
 
-    // Update card in database
-    const stability = Math.max(0.1, updatedCard.stability);
+    // Update card in database with full FSRS state
     const updateData = {
-      next_review: updatedCard.due.toISOString().split("T")[0],
-      interval: Math.round(stability),
-      ease_factor: updatedCard.difficulty,
-      last_review_date: now.toISOString().split("T")[0],
+      next_review: updatedCard.due.toISOString().split('T')[0],
+      stability: updatedCard.stability,
+      difficulty: updatedCard.difficulty,
+      elapsed_days: updatedCard.elapsed_days,
+      scheduled_days: updatedCard.scheduled_days,
       repetitions: updatedCard.reps,
+      lapses: updatedCard.lapses,
+      state: State[updatedCard.state],
+      last_review: now.toISOString().split('T')[0]
     };
+
+    // Add console.log to debug the update
+    console.log('Updating card:', card_id, 'with data:', updateData);
 
     const { error: updateError } = await supabaseAuth
       .from("cards")
@@ -256,40 +251,45 @@ async function handleReviewFlashcard(body: any, supabaseAuth: any) {
       .eq("card_id", card_id);
 
     if (updateError) {
+      console.error('Database update error:', updateError);
       throw updateError;
     }
 
-    // Get deck info
-    const { data: deckData, error: deckError } = await supabaseAuth
-      .from("decks")
-      .select("deck_name")
-      .eq("deck_id", cardData.deck_id)
-      .single();
-
-    if (deckError || !deckData) {
-      return NextResponse.json({ error: "Deck not found" }, { status: 404 });
-    }
-
     return NextResponse.json({
+      ...updateData,
       card_id,
-      deck_id: cardData.deck_id,
-      deck_name: deckData.deck_name,
-      front_content: cardData.front_content,
-      back_content: cardData.back_content,
-      next_review: updateData.next_review,
-      retrievability: updatedCard.retrievability,
+      retrievability: updatedCard.retrievability
     });
   } catch (error: any) {
+    console.error('Review error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
 
 async function handleGetDueCards(searchParameters: URLSearchParams) {
-  const { supabaseAuth } = await getCurrentUser(); // Get authenticated client
+  const { supabaseAuth } = await getCurrentUser();
   const deck_id = searchParameters.get("deck_id");
   const limit = Number.parseInt(searchParameters.get("limit") || "10");
+  const reviewAll = searchParameters.get("review_all") === "true";
 
-  const { data, error } = await supabaseAuth // Use supabaseAuth instead of supabase
+  // If reviewAll is true, get all cards from the deck
+  if (reviewAll) {
+    const { data, error } = await supabaseAuth
+      .from("cards")
+      .select("*")
+      .eq("deck_id", deck_id)
+      .order('card_id')
+      .limit(limit);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  }
+
+  // Otherwise get only due cards using the existing RPC
+  const { data, error } = await supabaseAuth
     .rpc("get_due_cards", {
       p_deck_id: deck_id ? Number.parseInt(deck_id) : null,
       p_limit: limit,

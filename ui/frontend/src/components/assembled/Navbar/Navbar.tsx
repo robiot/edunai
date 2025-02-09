@@ -1,7 +1,13 @@
-import { ChevronDown, ListFilter, LogOut, WalletCards, FolderOpen } from "lucide-react";
+import {
+  ChevronDown,
+  FolderOpen,
+  ListFilter,
+  LogOut,
+  WalletCards,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { FC, useState, useEffect } from "react";
+import { FC, useState } from "react";
 
 import { AllCardsModal } from "@/app/(app)/decks/[id]/_components/AllCardsModal";
 import { CreateCardModal } from "@/app/(app)/decks/[id]/_components/CreateCardModal";
@@ -12,8 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { supabase } from "@/lib/supabase";
 import { useFSRS } from "@/hooks/useFSRS";
+import { supabase } from "@/lib/supabase";
 
 export const Navbar: FC = () => {
   const router = useRouter();

@@ -255,13 +255,17 @@ const DeckPage = () => {
               <div className="flex flex-col items-center gap-3 py-16">
                 <div className="flex gap-4 items-center">
                   <TextToSpeech text={currentCard.front_content} />
-                  <span className="text-6xl text-center flex-1">{currentCard.front_content}</span>
+                  <span className="text-6xl text-center flex-1">
+                    {currentCard.front_content}
+                  </span>
                 </div>
                 {isCardFlipped && (
                   <>
                     <SelectSeparator className="h-1 w-full" />
                     <div className="mt-8">
-                      <span className="text-4xl">{currentCard.back_content}</span>
+                      <span className="text-4xl">
+                        {currentCard.back_content}
+                      </span>
                     </div>
                   </>
                 )}

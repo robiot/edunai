@@ -53,7 +53,7 @@ const DecksPage = () => {
               Chat
             </DialogTitle>
             <DialogClose asChild>
-              <button className="-mr-2">
+              <button className="-mr-2" tabIndex={-1}>
                 <X className="w-6 h-6" />
               </button>
             </DialogClose>

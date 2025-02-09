@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable sonarjs/no-nested-template-literals */
 "use client";
-
 import { useChat } from "ai/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import * as  React from "react";
 import { useEffect, useState } from "react";
 
 import { Chat } from "@/components/ui/chat";
@@ -214,11 +214,11 @@ export const AiChat = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Add handler to prevent space key from triggering collapse
-  const handleCollapseClick = (e: React.MouseEvent) => {
+  const handleCollapseClick = (event: React.MouseEvent) => {
     console.log("handleCollapseClick");
     // Prevent event from bubbling up
 
-    e.stopPropagation();
+    event.stopPropagation();
     setIsCollapsed(!isCollapsed);
 
   };

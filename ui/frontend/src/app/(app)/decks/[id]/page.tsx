@@ -254,22 +254,25 @@ const DeckPage = () => {
           ) : cards.length > 0 && currentCard ? (
             <>
               <div className="flex flex-col items-center gap-3 py-16">
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-center">
                   <TextToSpeech text={currentCard.front_content} />
-                  <span className="text-4xl">{currentCard.front_content}</span>
+                  <span className="text-6xl text-center flex-1">{currentCard.front_content}</span>
                 </div>
                 {isCardFlipped && (
                   <>
                     <SelectSeparator className="h-1 w-full" />
-                    <span className="text-xl">{currentCard.back_content}</span>
+                    <div className="mt-8">
+                      <span className="text-4xl">{currentCard.back_content}</span>
+                    </div>
                   </>
                 )}
               </div>
 
-              <div className="flex flex-1 gap-2 items-end justify-center py-6">
+              <div className="flex gap-4 items-center justify-center py-4">
                 {!isCardFlipped ? (
                   <Button
-                    className="font-semibold"
+                    className="font-semibold text-lg px-8 py-4"
+                    size="lg"
                     onClick={() => setIsCardFlipped(true)}
                   >
                     Show Answer (Space)
@@ -277,28 +280,32 @@ const DeckPage = () => {
                 ) : (
                   <>
                     <Button
-                      className={`${getRatingButtonStyle(1)} font-semibold`}
+                      className={`${getRatingButtonStyle(1)} font-semibold text-lg px-6 py-4`}
+                      size="lg"
                       onClick={() => handleRate(1)}
                       disabled={rateMutation.isPending}
                     >
-                      Again
+                      Fail
                     </Button>
                     <Button
-                      className={`${getRatingButtonStyle(2)} font-semibold`}
+                      className={`${getRatingButtonStyle(2)} font-semibold text-lg px-6 py-4`}
+                      size="lg"
                       onClick={() => handleRate(2)}
                       disabled={rateMutation.isPending}
                     >
                       Hard
                     </Button>
                     <Button
-                      className={`${getRatingButtonStyle(3)} font-semibold`}
+                      className={`${getRatingButtonStyle(3)} font-semibold text-lg px-6 py-4`}
+                      size="lg"
                       onClick={() => handleRate(3)}
                       disabled={rateMutation.isPending}
                     >
                       Good
                     </Button>
                     <Button
-                      className={`${getRatingButtonStyle(4)} font-semibold`}
+                      className={`${getRatingButtonStyle(4)} font-semibold text-lg px-6 py-4`}
+                      size="lg"
                       onClick={() => handleRate(4)}
                       disabled={rateMutation.isPending}
                     >

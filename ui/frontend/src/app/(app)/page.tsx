@@ -2,14 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { BookOpen, Castle, Languages, Send, Sparkles } from "lucide-react";
+import { BookOpen, Castle, Languages, Send, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 
@@ -43,7 +48,16 @@ const DecksPage = () => {
     <div className="pb-24">
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="bg-[#F3F6FA]">
-          <DialogTitle className="text-2xl font-bold hidden">Chat</DialogTitle>
+          <DialogHeader className="flex items-end -mt-3">
+            <DialogTitle className="text-2xl font-bold hidden">
+              Chat
+            </DialogTitle>
+            <DialogClose asChild>
+              <button className="-mr-2">
+                <X className="w-6 h-6" />
+              </button>
+            </DialogClose>
+          </DialogHeader>
           {modalOpen && <MainChatModal defaultPrompt={initValue ?? ""} />}
         </DialogContent>
       </Dialog>

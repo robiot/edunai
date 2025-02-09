@@ -1,20 +1,21 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable sonarjs/no-nested-template-literals */
 "use client";
 
 import { useChat } from "ai/react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Chat } from "@/components/ui/chat";
+import { ChatCollapseContext } from "@/contexts/ChatCollapseContext";
 import { useAIActions } from "@/hooks/useAIActions";
 import { extractToolInvocations } from "@/lib/tool-invocations";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ChatCollapseContext } from '@/contexts/ChatCollapseContext';
 
 // Update interface for the AiChat component props
 interface AiChatProperties {
   deckId?: string; // Make optional since we might use the chat without a deck context
-  fullHeight?: boolean;
+  isSideChat?: boolean;
   defaultPrompt?: string;
   currentCard?: {
     card_id: number;
@@ -28,21 +29,23 @@ interface AiChatProperties {
 // Update the system prompt to include emoji instructions and current card context
 const getSystemPrompt = (
   deckId?: string,
-  currentCard?: AiChatProperties['currentCard'],
+  currentCard?: AiChatProperties["currentCard"],
   deckName?: string,
-  deckDescription?: string,
+  deckDescription?: string
 ) => `You are an intelligent assistant designed to help manage flashcards and decks.${
-  deckId 
+  deckId
     ? `\nYou are currently working with:
        Deck ID: ${deckId}
-       ${deckName ? `Deck Name: ${deckName}` : ''}
-       ${deckDescription ? `Deck Description: ${deckDescription}` : ''}`
-    : ""}${
-  currentCard 
+       ${deckName ? `Deck Name: ${deckName}` : ""}
+       ${deckDescription ? `Deck Description: ${deckDescription}` : ""}`
+    : ""
+}${
+  currentCard
     ? `\nCurrently viewing card ID: ${currentCard.card_id}
        Front content: "${currentCard.front_content}"
        Back content: "${currentCard.back_content}"`
-    : ""}
+    : ""
+}
 
 When performing actions, use the json_action tool with the following formats:
 
@@ -138,7 +141,7 @@ When performing actions, use the json_action tool with the following formats:
 
 export const AiChat = ({
   deckId,
-  fullHeight,
+  isSideChat,
   defaultPrompt,
   currentCard,
   deckName,
@@ -158,7 +161,12 @@ export const AiChat = ({
   } = useChat({
     api: "/api/chat",
     body: {
-      systemPrompt: getSystemPrompt(deckId, currentCard, deckName, deckDescription),
+      systemPrompt: getSystemPrompt(
+        deckId,
+        currentCard,
+        deckName,
+        deckDescription
+      ),
       currentDeckId: deckId,
       currentCard,
     },
@@ -204,7 +212,7 @@ export const AiChat = ({
 
   return (
     <ChatCollapseContext.Provider value={{ isCollapsed }}>
-      <div data-ai-chat className="flex flex-col h-full">
+      <>
         {/* Show processing state or error if any */}
         {isProcessing && !isCollapsed && (
           <div className="p-2 text-sm text-blue-600">
@@ -216,32 +224,41 @@ export const AiChat = ({
         )}
 
         {/* Chat section with collapse functionality */}
-        <div className="flex flex-1 relative">
+        <div className="flex flex-1 relative w-full h-full">
           {/* Enhanced Collapse/Expand button */}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              "absolute -right-10 top-0",
-              "rounded-r",
-              "p-2 h-16 flex items-center justify-center",
-              "transition-colors duration-200",
-              "z-50"
-            )}
-            aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
-          >
-            {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
-          </button>
-
+          {isSideChat && (
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                "absolute -right-10 top-0",
+                "rounded-r",
+                "p-2 h-16 flex items-center justify-center",
+                "transition-colors duration-200",
+                "z-50"
+              )}
+              aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
+            >
+              {isCollapsed ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
+            </button>
+          )}
           {/* Chat content with improved transition */}
           <div
             className={cn(
-              "transition-all duration-200 flex flex-col",
-              fullHeight ? "h-[calc(100vh-9rem)]" : "h-full",
-              isCollapsed ? "w-0 overflow-hidden" : "w-72",
+              "transition-all duration-200 flex flex-col w-full",
+              isSideChat ? "h-[calc(100vh-9rem)]" : "h-full",
+              isCollapsed
+                ? "w-0 overflow-hidden"
+                : (isSideChat
+                  ? "w-72"
+                  : "w-full")
             )}
           >
             <Chat
-              {...(fullHeight
+              {...(isSideChat
                 ? {
                     append,
                     suggestions: ["Create card", "Explain this"],
@@ -251,7 +268,7 @@ export const AiChat = ({
                   })}
               messages={messages as any}
               input={input}
-              className="flex-1 flex flex-col"
+              className="flex-1 flex flex-col px-4"
               handleInputChange={handleInputChange}
               handleSubmit={handleSubmit}
               isGenerating={isChatLoading}
@@ -259,7 +276,7 @@ export const AiChat = ({
             />
           </div>
         </div>
-      </div>
+      </>
     </ChatCollapseContext.Provider>
   );
 };

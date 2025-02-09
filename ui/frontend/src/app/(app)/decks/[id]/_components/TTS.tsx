@@ -34,7 +34,7 @@ export const TextToSpeech: FC<{ text: string }> = ({ text }) => {
       onClick={handleTTS}
       disabled={loading}
       variant="outline"
-      className=" h-12 w-12 p-0 text-sm rounded-full"
+      className=" h-12 min-w-12 w-12 p-0 text-sm rounded-full"
     >
       <Volume2 size={24} />
     </Button>

@@ -1,8 +1,6 @@
 import { FC } from "react";
 
 import { AiChat } from "@/components/ui/ai-chat";
-import { Button } from "@/components/ui/button";
-import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 
 export const MainChatModal: FC<{
   defaultPrompt: string;
@@ -10,16 +8,9 @@ export const MainChatModal: FC<{
   return (
     <>
       {/* Chat Modal */}
-      <div className="flex flex-col h-[50vh]">
+      <div className="flex flex-col h-[50vh] mb-4">
         <AiChat defaultPrompt={defaultPrompt} />
       </div>
-      <DialogFooter className="px-4">
-        <DialogClose asChild>
-          <Button variant="secondary" className="px-8">
-            Close
-          </Button>
-        </DialogClose>
-      </DialogFooter>
     </>
   );
 };

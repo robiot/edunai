@@ -182,7 +182,7 @@ export function MessageInput({
         onPaste={onPaste}
         onKeyDown={onKeyDown}
         className={cn(
-          "z-10 w-full grow resize-none border-0 p-4 pr-24 min-h-[60px] ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400",
+          "z-10 w-full rounded-xl grow resize-none border-0 p-4 pr-24 min-h-[60px] ring-offset-white transition-[border] placeholder:text-neutral-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400",
           showFileList && "pb-16",
           className,
         )}

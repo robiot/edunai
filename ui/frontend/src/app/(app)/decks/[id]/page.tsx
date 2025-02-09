@@ -14,9 +14,9 @@ import { AiChat } from "@/components/ui/ai-chat";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SelectSeparator } from "@/components/ui/select";
+import { useChatCollapse } from "@/contexts/ChatCollapseContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
-import { useChatCollapse } from '@/contexts/ChatCollapseContext';
 
 import { TextToSpeech } from "./_components/TTS";
 
@@ -197,8 +197,8 @@ const DeckPage = () => {
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement ||
         (!isCollapsed && // Only check for AI chat if it's not collapsed
-          event.target instanceof HTMLElement && 
-          event.target.closest('[data-ai-chat]'))
+          event.target instanceof HTMLElement &&
+          event.target.closest("[data-ai-chat]"))
       ) {
         return;
       }
@@ -238,11 +238,7 @@ const DeckPage = () => {
     <div className="flex flex-1 h-full flex-col md:flex-row">
       <Card className="bg-[#F3F6FA] rounded-none flex-shrink-0 flex items-end justify-center flex-col relative">
         <div className="flex h-[calc(100vh-9rem)]">
-          <AiChat 
-            deckId={deckId} 
-            fullHeight 
-            currentCard={currentCard}
-          />
+          <AiChat deckId={deckId} isSideChat currentCard={currentCard} />
         </div>
       </Card>
       <Container className="h-[unset] flex-1 rounded-none flex justify-center">

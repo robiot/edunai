@@ -131,7 +131,7 @@ export function Chat({
       </div>
 
       <ChatForm
-        className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950"
+        className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 rounded-lg"
         isPending={isGenerating || isTyping}
         handleSubmit={handleSubmit}
       >
@@ -166,7 +166,7 @@ export function ChatMessages({
 
   return (
     <div
-      className="grid grid-cols-1 overflow-y-auto px-2"
+      className="grid grid-cols-1 overflow-y-auto px-2 pb-4"
       ref={containerRef}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}

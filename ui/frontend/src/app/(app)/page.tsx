@@ -50,7 +50,7 @@ const DecksPage = () => {
       <div className="bg-[#F3F6FA] py-24">
         <Container className="text-center flex flex-col gap-3" size="small">
           <h1 className="text-5xl font-bold">Hello {userName ?? "..."}</h1>
-          <h2 className="text-xl">What can I help you with</h2>
+          <h2 className="text-xl">What can I help you with?</h2>
           <form
             onSubmit={form.handleSubmit(async (data) => {
               setModalOpen(true);

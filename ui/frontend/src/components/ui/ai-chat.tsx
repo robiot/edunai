@@ -203,22 +203,31 @@ export const AiChat = ({
   });
 
   useEffect(() => {
-    console.log("setting rn to", defaultPrompt);
-    setInput(defaultPrompt || "");
-  }, [defaultPrompt]);
+    // Only set input if defaultPrompt exists and is not empty
+    if (defaultPrompt?.trim()) {
+      console.log("setting input to", defaultPrompt);
+      setInput(defaultPrompt);
+    }
+  }, [defaultPrompt, setInput]); // Added setInput to dependencies
 
   // Add state for collapse
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Add handler to prevent space key from triggering collapse
+  const handleCollapseClick = (e: React.MouseEvent) => {
+    console.log("handleCollapseClick");
+    // Prevent event from bubbling up
+
+    e.stopPropagation();
+    setIsCollapsed(!isCollapsed);
+
+  };
 
   return (
     <ChatCollapseContext.Provider value={{ isCollapsed }}>
       <>
         {/* Show processing state or error if any */}
-        {isProcessing && !isCollapsed && (
-          <div className="p-2 text-sm text-blue-600">
-            Processing AI response...
-          </div>
-        )}
+  
         {error && !isCollapsed && (
           <div className="p-2 text-sm text-red-600">Error: {error.message}</div>
         )}
@@ -228,7 +237,7 @@ export const AiChat = ({
           {/* Enhanced Collapse/Expand button */}
           {isSideChat && (
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={handleCollapseClick}
               className={cn(
                 "absolute -right-10 top-0",
                 "rounded-r",
@@ -237,6 +246,7 @@ export const AiChat = ({
                 "z-50"
               )}
               aria-label={isCollapsed ? "Expand chat" : "Collapse chat"}
+              tabIndex={-1}
             >
               {isCollapsed ? (
                 <ChevronLeft size={24} />
@@ -253,7 +263,7 @@ export const AiChat = ({
               isCollapsed
                 ? "w-0 overflow-hidden"
                 : (isSideChat
-                  ? "w-72"
+                  ? "w-80"
                   : "w-full")
             )}
           >

@@ -125,20 +125,19 @@ const DeckPage = () => {
   });
 
   // Helper function to get button style based on rating
-  const getRatingButtonStyle = (_rating: number) => {
-    return "";
-    // switch (rating) {
-    //   case 1:
-    //     return "bg-red-600 hover:bg-red-700 text-white";
-    //   case 2:
-    //     return " ";
-    //   case 3:
-    //     return "";
-    //   case 4:
-    //     return "";
-    //   default:
-    //     return "";
-    // }
+  const getRatingButtonStyle = (rating: number) => {
+    switch (rating) {
+      case 1: // Fail
+        return "border-2 border-orange-400 hover:border-orange-500";
+      case 2: // Hard
+        return "border-2 border-red-500/60 hover:border-red-600";
+      case 3: // Good
+        return "border-2 border-blue-500/40 hover:border-blue-600";
+      case 4: // Easy
+        return "border-2 border-green-500/40 hover:border-green-600";
+      default:
+        return "";
+    }
   };
 
   const convertToFSRSRating = (rating: number): Rating => {

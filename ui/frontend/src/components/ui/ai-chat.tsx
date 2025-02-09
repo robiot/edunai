@@ -216,6 +216,7 @@ export const AiChat = ({
   // Add handler to prevent space key from triggering collapse
   const handleCollapseClick = (event: React.MouseEvent) => {
     console.log("handleCollapseClick");
+    (event.target as HTMLElement).blur();
     // Prevent event from bubbling up
 
     event.stopPropagation();

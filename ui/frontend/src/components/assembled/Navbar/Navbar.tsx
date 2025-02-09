@@ -46,7 +46,7 @@ export const Navbar: FC = () => {
         <div className="flex items-center gap-2">
           {deckId && (
             <>
-              <CreateCardModal>
+              <CreateCardModal onSuccess={() => window.location.reload()}>
                 <Button variant="outline" size="sm" className="flex gap-2">
                   <WalletCards size={20} />
                   Add Card

@@ -30,8 +30,9 @@ export async function POST(request: Request) {
 
     // Use streamText from the AI SDK for simplified streaming
     const result = streamText({
-      model: openai("gpt-4o-mini"),
+      model: openai("gpt-4o"),
       messages,
+      temperature: 0.2,
     });
 
     return result.toDataStreamResponse();

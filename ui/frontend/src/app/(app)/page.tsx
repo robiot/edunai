@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 
 import { DecksTable } from "./_components/DecksTable";
 import { MainChatModal } from "./_components/MainChatModal";
+import { supabase } from "@/lib/supabase";
 
 const schema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
@@ -27,7 +28,20 @@ const DecksPage = () => {
     resolver: zodResolver(schema),
   });
 
+
+  const [userName, setUserName] = useState<string>("");
+
+  // Get user data on component mount
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user) {
+      setUserName(
+        session.user.user_metadata.name.split(" ")[0] || "User",
+      );
+    }
+  });
+
   const [initValue, setInitValue] = useState<string | null>(null);
+
 
   return (
     <div className="pb-24">
@@ -39,7 +53,7 @@ const DecksPage = () => {
       </Dialog>
       <div className="bg-[#F3F6FA] py-24">
         <Container className="text-center flex flex-col gap-3" size="small">
-          <h1 className="text-5xl font-bold">Hello Elliot</h1>
+          <h1 className="text-5xl font-bold">Hello {userName ?? "..."}</h1>
           <h2 className="text-xl">What can I help you with</h2>
           <form
             onSubmit={form.handleSubmit(async (data) => {

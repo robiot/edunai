@@ -1,4 +1,5 @@
 import { ChevronDown, ListFilter, LogOut, WalletCards } from "lucide-react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
@@ -41,7 +42,9 @@ export const Navbar: FC = () => {
 
         // size="large"
       >
-        <h1 className="text-2xl text-[#605BFB] font-extrabold">edunai</h1>
+        <Link href="/" className="text-2xl text-[#605BFB] font-extrabold">
+          edunai
+        </Link>
 
         <div className="flex items-center gap-2">
           {deckId && (

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-small-switch */
 /* eslint-disable unicorn/consistent-function-scoping */
 /* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable unicorn/no-nested-ternary */
@@ -19,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
 
 import { CreateCardModal } from "./_components/CreateCardModal";
+import { TextToSpeech } from "./_components/TTS";
 
 enum CardState {
   New = "New",
@@ -146,19 +148,20 @@ const DeckPage = () => {
   });
 
   // Helper function to get button style based on rating
-  const getRatingButtonStyle = (rating: number) => {
-    switch (rating) {
-      case 1:
-        return "bg-red-600 hover:bg-red-700 text-white";
-      case 2:
-        return "bg-orange-500 hover:bg-orange-600 text-white";
-      case 3:
-        return "bg-green-600 hover:bg-green-700 text-white";
-      case 4:
-        return "bg-blue-600 hover:bg-blue-700 text-white";
-      default:
-        return "";
-    }
+  const getRatingButtonStyle = (_rating: number) => {
+    return "";
+    // switch (rating) {
+    //   case 1:
+    //     return "bg-red-600 hover:bg-red-700 text-white";
+    //   case 2:
+    //     return " ";
+    //   case 3:
+    //     return "";
+    //   case 4:
+    //     return "";
+    //   default:
+    //     return "";
+    // }
   };
 
   const convertToFSRSRating = (rating: number): Rating => {
@@ -281,7 +284,10 @@ const DeckPage = () => {
           ) : cards.length > 0 && currentCard ? (
             <>
               <div className="flex flex-col items-center gap-3 py-16">
-                <span className="text-4xl">{currentCard.front_content}</span>
+                <div className="flex gap-4">
+                  <TextToSpeech text={currentCard.front_content} />
+                  <span className="text-4xl">{currentCard.front_content}</span>
+                </div>
                 {isCardFlipped && (
                   <>
                     <SelectSeparator className="h-1 w-full" />

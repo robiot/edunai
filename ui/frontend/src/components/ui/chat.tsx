@@ -1,12 +1,12 @@
 /* eslint-disable unused-imports/no-unused-vars */
 "use client";
 
+import { Message } from "ai";
 import { ArrowDown, ThumbsDown, ThumbsUp } from "lucide-react";
 import { type ReactElement, forwardRef, useCallback, useState } from "react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { type Message } from "@/components/ui/chat-message";
 import { CopyButton } from "@/components/ui/copy-button";
 import { MessageInput } from "@/components/ui/message-input";
 import { MessageList } from "@/components/ui/message-list";
@@ -19,15 +19,17 @@ interface ChatPropertiesBase {
     event?: { preventDefault?: () => void },
     options?: { experimental_attachments?: FileList },
   ) => void;
-  messages: Array<Message & {
-    toolInvocations?: {
-      state: "result" | "call";
-      toolName: string;
-      result?: any;
-      success?: boolean;
-      error?: string;
-    }[];
-  }>;
+  messages: Array<
+    Message & {
+      toolInvocations?: {
+        state: "result" | "call";
+        toolName: string;
+        result?: any;
+        success?: boolean;
+        error?: string;
+      }[];
+    }
+  >;
   input: string;
   className?: string;
   handleInputChange: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -122,7 +124,10 @@ export function Chat({
             messages={messages}
             isTyping={isTyping}
             messageOptions={messageOptions}
-            toolInvocations={messages.map(m => m.toolInvocations).filter(Boolean)}
+            //@ts-ignore
+            toolInvocations={messages
+              .map((m) => m.toolInvocations)
+              .filter(Boolean)}
           />
         </ChatMessages>
       ) : null}

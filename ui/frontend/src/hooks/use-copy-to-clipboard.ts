@@ -1,36 +1,39 @@
-import { useCallback, useRef, useState } from "react"
-import { toast } from "sonner"
+/* eslint-disable no-undef */
+import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
 
-type UseCopyToClipboardProps = {
-  text: string
-  copyMessage?: string
-}
+type UseCopyToClipboardProperties = {
+  text: string;
+  copyMessage?: string;
+};
 
 export function useCopyToClipboard({
   text,
   copyMessage = "Copied to clipboard!",
-}: UseCopyToClipboardProps) {
-  const [isCopied, setIsCopied] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+}: UseCopyToClipboardProperties) {
+  const [isCopied, setIsCopied] = useState(false);
+  const timeoutReference = useRef<NodeJS.Timeout | null>(null);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        toast.success(copyMessage)
-        setIsCopied(true)
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-          timeoutRef.current = null
+        toast.success(copyMessage);
+        setIsCopied(true);
+
+        if (timeoutReference.current) {
+          clearTimeout(timeoutReference.current);
+          timeoutReference.current = null;
         }
-        timeoutRef.current = setTimeout(() => {
-          setIsCopied(false)
-        }, 2000)
+
+        timeoutReference.current = setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
       })
       .catch(() => {
-        toast.error("Failed to copy clipboard.")
-      })
-  }, [text, copyMessage])
+        toast.error("Failed to copy clipboard.");
+      });
+  }, [text, copyMessage]);
 
-  return { isCopied, handleCopy }
+  return { isCopied, handleCopy };
 }

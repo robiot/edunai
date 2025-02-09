@@ -5,30 +5,21 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useChat } from "ai/react";
 import { WalletCards } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Rating, State } from "ts-fsrs";
 
 import { Container } from "@/components/common/Container";
+import { AiChat } from "@/components/ui/ai-chat";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Chat } from "@/components/ui/chat";
 import { SelectSeparator } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
-import { AiChat } from "@/components/ui/ai-chat";
 
 import { CreateCardModal } from "./_components/CreateCardModal";
 import { TextToSpeech } from "./_components/TTS";
-
-enum CardState {
-  New = "New",
-  Learning = "Learning",
-  Review = "Review",
-  Relearning = "Relearning",
-}
 
 interface FlashCard {
   card_id: number;
@@ -42,7 +33,7 @@ interface FlashCard {
   scheduled_days?: number;
   reps?: number;
   lapses?: number;
-  state?: CardState;
+  // state?: CardState;
   last_review?: string;
 }
 
@@ -68,21 +59,6 @@ const DeckPage = () => {
   } = useDueCards(deckId, reviewAll);
 
   const currentCard = cards[currentCardIndex];
-
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    append,
-    stop,
-    isLoading: isChatLoading,
-  } = useChat({
-    api: "/api/chat",
-    onResponse: (response) => {
-      console.log(response);
-    },
-  });
 
   // Mutation for rating cards
   const rateMutation = useMutation({
@@ -233,15 +209,19 @@ const DeckPage = () => {
           break;
         case "1":
           if (isCardFlipped) handleRate(1);
+
           break;
         case "2":
           if (isCardFlipped) handleRate(2);
+
           break;
         case "3":
           if (isCardFlipped) handleRate(3);
+
           break;
         case "4":
           if (isCardFlipped) handleRate(4);
+
           break;
       }
     };

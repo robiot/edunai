@@ -203,6 +203,7 @@ async function handleCreateFlashcard(body: any, supabaseAuth: any) {
     front_content,
     back_content,
     next_review: nextReview,
+    //@ts-ignore
     retrievability: fsrsCard.retrievability,
   });
 }
@@ -221,18 +222,19 @@ async function handleReviewFlashcard(body: any, supabaseAuth: any) {
       reps: card_state.reps,
       lapses: card_state.lapses,
       state: State[card_state.state as keyof typeof State],
-      last_review: new Date(card_state.last_review)
+      last_review: new Date(card_state.last_review),
     } as Card;
 
     // Process the review
     const now = new Date();
     const scheduling_cards = scheduler.repeat(card, now);
+    //@ts-ignore
     const result = scheduling_cards[rating as Rating];
     const updatedCard = result.card;
 
     // Update card in database with full FSRS state
     const updateData = {
-      next_review: updatedCard.due.toISOString().split('T')[0],
+      next_review: updatedCard.due.toISOString().split("T")[0],
       stability: updatedCard.stability,
       difficulty: updatedCard.difficulty,
       elapsed_days: updatedCard.elapsed_days,
@@ -240,11 +242,11 @@ async function handleReviewFlashcard(body: any, supabaseAuth: any) {
       repetitions: updatedCard.reps,
       lapses: updatedCard.lapses,
       state: State[updatedCard.state],
-      last_review: now.toISOString().split('T')[0]
+      last_review: now.toISOString().split("T")[0],
     };
 
     // Add console.log to debug the update
-    console.log('Updating card:', card_id, 'with data:', updateData);
+    console.log("Updating card:", card_id, "with data:", updateData);
 
     const { error: updateError } = await supabaseAuth
       .from("cards")
@@ -252,17 +254,18 @@ async function handleReviewFlashcard(body: any, supabaseAuth: any) {
       .eq("card_id", card_id);
 
     if (updateError) {
-      console.error('Database update error:', updateError);
+      console.error("Database update error:", updateError);
       throw updateError;
     }
 
     return NextResponse.json({
       ...updateData,
       card_id,
-      retrievability: updatedCard.retrievability
+      retrievability: updatedCard.retrievability,
     });
   } catch (error: any) {
-    console.error('Review error:', error);
+    console.error("Review error:", error);
+
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
@@ -279,7 +282,7 @@ async function handleGetDueCards(searchParameters: URLSearchParams) {
       .from("cards")
       .select("*")
       .eq("deck_id", deck_id)
-      .order('card_id')
+      .order("card_id")
       .limit(limit);
 
     if (error) {
@@ -290,11 +293,10 @@ async function handleGetDueCards(searchParameters: URLSearchParams) {
   }
 
   // Otherwise get only due cards using the existing RPC
-  const { data, error } = await supabaseAuth
-    .rpc("get_due_cards", {
-      p_deck_id: deck_id ? Number.parseInt(deck_id) : null,
-      p_limit: limit,
-    });
+  const { data, error } = await supabaseAuth.rpc("get_due_cards", {
+    p_deck_id: deck_id ? Number.parseInt(deck_id) : null,
+    p_limit: limit,
+  });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

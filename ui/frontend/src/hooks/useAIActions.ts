@@ -1,5 +1,5 @@
-import { useFSRS } from '@/hooks/useFSRS';
-import { JsonActionResult } from '@/lib/tool-invocations';
+import { useFSRS } from "@/hooks/useFSRS";
+import { JsonActionResult } from "@/lib/tool-invocations";
 
 // Types for AI responses
 interface DeckWithCards {
@@ -45,41 +45,43 @@ export function useAIActions() {
     try {
       // Handle different action types
       switch (actionData.action) {
-        case 'create_deck_with_cards':
+        case "create_deck_with_cards":
           if (isDeckWithCards(actionData)) {
             // Create deck and cards implementation...
             const deck = await createDeck.mutateAsync({
               deck_name: actionData.deck.deck_name,
-              description: actionData.deck.description
+              description: actionData.deck.description,
             });
 
-            const cardPromises = actionData.cards.map(card =>
+            const cardPromises = actionData.cards.map((card) =>
               createFlashcard.mutateAsync({
                 deck_id: deck.deck_id,
                 front_content: card.front_content,
-                back_content: card.back_content
-              })
+                back_content: card.back_content,
+              }),
             );
 
             await Promise.all(cardPromises);
           }
+
           break;
 
-        case 'add_card':
+        case "add_card":
           if (isSingleCard(actionData)) {
             await createFlashcard.mutateAsync({
-              deck_id: parseInt(actionData.deck_id),
+              deck_id: Number.parseInt(actionData.deck_id),
               front_content: actionData.front_content,
-              back_content: actionData.back_content
+              back_content: actionData.back_content,
             });
           }
+
           break;
 
         default:
-          console.log('Unknown action type:', actionData.action);
+          console.log("Unknown action type:", actionData.action);
       }
     } catch (error) {
-      console.error('Error processing AI response:', error);
+      console.error("Error processing AI response:", error);
       throw error;
     }
   };
@@ -87,6 +89,6 @@ export function useAIActions() {
   return {
     processAIResponse,
     isProcessing: createDeck.isPending || createFlashcard.isPending,
-    error: createDeck.error || createFlashcard.error
+    error: createDeck.error || createFlashcard.error,
   };
-} 
+}

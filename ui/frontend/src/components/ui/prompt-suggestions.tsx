@@ -1,14 +1,15 @@
-interface PromptSuggestionsProps {
-  label: string
-  append: (message: { role: "user"; content: string }) => void
-  suggestions: string[]
+/* eslint-disable unused-imports/no-unused-vars */
+interface PromptSuggestionsProperties {
+  label: string;
+  append: (message: { role: "user"; content: string }) => void;
+  suggestions: string[];
 }
 
 export function PromptSuggestions({
   label,
   append,
   suggestions,
-}: PromptSuggestionsProps) {
+}: PromptSuggestionsProperties) {
   return (
     <div className="space-y-6">
       <h2 className="text-center text-2xl font-bold">{label}</h2>
@@ -24,5 +25,5 @@ export function PromptSuggestions({
         ))}
       </div>
     </div>
-  )
+  );
 }

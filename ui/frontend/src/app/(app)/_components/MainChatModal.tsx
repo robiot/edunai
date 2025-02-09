@@ -13,7 +13,7 @@ export const MainChatModal: FC<{
       {/* Chat Modal */}
       <div className="flex h-[50vh]">
         <Chat
-          messages={chat.messages}
+          messages={chat.messages as any}
           input={chat.input}
           className="py-5 px-4"
           handleInputChange={chat.handleInputChange}

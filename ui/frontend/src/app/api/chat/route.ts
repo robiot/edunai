@@ -21,11 +21,11 @@ export async function POST(request: Request) {
     let messages = data.messages || [];
 
     // Add system prompt if provided
-    if (data.systemPrompt && (messages.length === 0 || messages[0].role !== "system")) {
-      messages = [
-        { role: "system", content: data.systemPrompt },
-        ...messages
-      ];
+    if (
+      data.systemPrompt &&
+      (messages.length === 0 || messages[0].role !== "system")
+    ) {
+      messages = [{ role: "system", content: data.systemPrompt }, ...messages];
     }
 
     // Use streamText from the AI SDK for simplified streaming

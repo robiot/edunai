@@ -1,15 +1,16 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable no-redeclare */
 "use client";
 
-import { type VariantProps, cva } from "class-variance-authority";
-import { Check, Code2, Loader2, Terminal } from "lucide-react";
-import React, { useMemo } from "react";
-import { useAIActions } from "@/hooks/useAIActions";
 import { Message } from "ai";
-import { ToolInvocation } from "@/lib/tool-invocations";
+import { type VariantProps, cva } from "class-variance-authority";
+import { Check } from "lucide-react";
+import React, { useMemo } from "react";
 
 import { FilePreview } from "@/components/ui/file-preview";
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
+import { ToolInvocation } from "@/lib/tool-invocations";
 import { cn } from "@/lib/utils";
 
 const chatBubbleVariants = cva(
@@ -79,7 +80,7 @@ interface ToolResult {
   error?: string;
 }
 
-type ToolInvocation = PartialToolCall | ToolCall | ToolResult;
+type _CToolInvocation = PartialToolCall | ToolCall | ToolResult;
 
 export interface ChatMessageProperties extends Message {
   showTimeStamp?: boolean;
@@ -92,33 +93,43 @@ export interface ChatMessageProperties extends Message {
  * Formats the message content by removing tool invocations and adding their results,
  * except for "add_card" tool calls which will be handled separately.
  */
-function formatMessageWithToolResults(content: string, toolInvocations?: ToolInvocation[]): string {
+function formatMessageWithToolResults(
+  content: string,
+  toolInvocations?: ToolInvocation[],
+): string {
   // Remove all tool invocation blocks (that use the json_action tool) from the content using a regex.
-  let cleanContent = content.replace(/<tool>json_action<\/tool>\s*{[\s\S]*?}\s*<\/tool>/g, '');
+  let cleanContent = content.replace(
+    /<tool>json_action<\/tool>\s*{[\S\s]*?}\s*<\/tool>/g,
+    "",
+  );
 
-  // Process tool results; however, we'll filter out "add_card" results because 
+  // Process tool results; however, we'll filter out "add_card" results because
   // they will be rendered as a custom like box.
-  const nonAddCardToolResults = toolInvocations
-    ?.filter((tool) => tool.state === "result" && tool.result?.action !== 'add_card')
-    .map((tool) => {
-      // Depending on the action type, generate a summary text to show.
-      switch (tool.result?.action) {
-        case 'create_deck_with_cards':
-          return `✅ Created deck "${tool.result.deck.deck_name}" with ${tool.result.cards.length} cards`;
-        case 'add_deck':
-          return `✅ Created deck "${tool.result.deck_name}"`;
-        case 'add_cards':
-          return `✅ Added ${tool.result.cards.length} cards to deck`;
-        // Do not return anything for "add_card" as it will be rendered separately.
-        default:
-          return null;
-      }
-    })
-    .filter(Boolean) || [];
+  const nonAddCardToolResults =
+    toolInvocations
+      ?.filter(
+        (tool) => tool.state === "result" && tool.result?.action !== "add_card",
+      )
+      .map((tool) => {
+        // Depending on the action type, generate a summary text to show.
+        switch (tool.result?.action) {
+          case "create_deck_with_cards":
+            return `✅ Created deck "${tool.result.deck.deck_name}" with ${tool.result.cards.length} cards`;
+          case "add_deck":
+            return `✅ Created deck "${tool.result.deck_name}"`;
+          case "add_cards":
+            return `✅ Added ${tool.result.cards.length} cards to deck`;
+          // Do not return anything for "add_card" as it will be rendered separately.
+          default:
+            return null;
+        }
+      })
+      .filter(Boolean) || [];
 
   // Append the non-add_card tool results to the cleaned content if any exist.
-  if (nonAddCardToolResults.length) {
-    cleanContent = cleanContent.trim() + '\n\n' + nonAddCardToolResults.join('\n');
+  if (nonAddCardToolResults.length > 0) {
+    cleanContent =
+      cleanContent.trim() + "\n\n" + nonAddCardToolResults.join("\n");
   }
 
   return cleanContent.trim();
@@ -136,8 +147,8 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
   toolInvocations,
 }) => {
   // Add console.log to debug
-  console.log('Tool Invocations:', toolInvocations);
-  
+  console.log("Tool Invocations:", toolInvocations);
+
   const files = useMemo(() => {
     return experimental_attachments?.map((attachment) => {
       const dataArray = dataUrlToUint8Array(attachment.url);
@@ -147,20 +158,21 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
   }, [experimental_attachments]);
 
   const addCardInvocations = useMemo(() => {
-    const filtered = toolInvocations?.filter((inv) => {
-      // Look for any add_card results, successful or not
-      if (inv.state === "result") {
-        return inv.result?.action === "add_card";
-      }
-      return false;
-    }) || [];
-    
-    return filtered;
+    return (
+      toolInvocations?.filter((inv) => {
+        // Look for any add_card results, successful or not
+        if (inv.state === "result") {
+          return inv.result?.action === "add_card";
+        }
+
+        return false;
+      }) || []
+    );
   }, [toolInvocations]);
 
   const formattedContent = formatMessageWithToolResults(
     content,
-    toolInvocations
+    toolInvocations as any,
   );
 
   const isUser = role === "user";
@@ -172,25 +184,33 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
 
   // Check if the message contained a tool call by comparing original and cleaned content
   const hadToolCall = useMemo(() => {
-    const cleanContent = content.replace(/<tool>json_action<\/tool>\s*{[\s\S]*?}\s*<\/tool>/g, '');
+    const cleanContent = content.replace(
+      /<tool>json_action<\/tool>\s*{[\S\s]*?}\s*<\/tool>/g,
+      "",
+    );
+
     return cleanContent !== content;
   }, [content]);
 
   // Get the success message based on the tool call type
   const getSuccessMessage = useMemo(() => {
-    const match = content.match(/<tool>json_action<\/tool>\s*({[\s\S]*?})\s*<\/tool>/);
+    const match = content.match(
+      /<tool>json_action<\/tool>\s*({[\S\s]*?})\s*<\/tool>/,
+    );
+
     if (!match) return "Action completed successfully!";
-    
+
     try {
       const json = JSON.parse(match[1]);
+
       switch (json.action) {
-        case 'add_card':
+        case "add_card":
           return "Card added successfully!";
-        case 'create_deck_with_cards':
+        case "create_deck_with_cards":
           return "Deck and cards created successfully!";
-        case 'add_deck':
+        case "add_deck":
           return "Deck created successfully!";
-        case 'add_cards':
+        case "add_cards":
           return "Cards added successfully!";
         default:
           return "Action completed successfully!";
@@ -216,22 +236,25 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
         </div>
         {addCardInvocations.length > 0 && (
           <div className="mt-2 space-y-2">
-            {addCardInvocations.map((invocation, index) => (
+            {addCardInvocations.map((invocation: any, index) => (
               <div
                 key={index}
-                className={cn("p-2 rounded-md", 
-                  invocation.success 
-                    ? "bg-green-50 border border-green-300" 
-                    : "bg-red-50 border border-red-300"
+                className={cn(
+                  "p-2 rounded-md",
+                  invocation.success
+                    ? "bg-green-50 border border-green-300"
+                    : "bg-red-50 border border-red-300",
                 )}
               >
-                <p className={cn("text-sm",
-                  invocation.success ? "text-green-700" : "text-red-700"
-                )}>
-                  {invocation.success 
-                    ? "Card created successfully" 
-                    : `Failed to create card: ${invocation.error || 'Unknown error'}`
-                  }
+                <p
+                  className={cn(
+                    "text-sm",
+                    invocation.success ? "text-green-700" : "text-red-700",
+                  )}
+                >
+                  {invocation.success
+                    ? "Card created successfully"
+                    : `Failed to create card: ${invocation.error || "Unknown error"}`}
                 </p>
               </div>
             ))}
@@ -241,7 +264,9 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
           <div className="mt-2 flex items-center justify-stretch w-full">
             <div className="rounded-md bg-green-100 px-3 py-2 flex items-center gap-2 w-full justify-center">
               <Check className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-600">{getSuccessMessage}</span>
+              <span className="text-sm text-green-600">
+                {getSuccessMessage}
+              </span>
             </div>
           </div>
         )}

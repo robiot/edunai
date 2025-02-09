@@ -1,10 +1,12 @@
-import { useLayoutEffect, useRef } from "react"
+/* eslint-disable unicorn/consistent-destructuring */
+import { useLayoutEffect, useRef } from "react";
+import * as React from "react";
 
-interface UseAutosizeTextAreaProps {
-  ref: React.RefObject<HTMLTextAreaElement>
-  maxHeight?: number
-  borderWidth?: number
-  dependencies: React.DependencyList
+interface UseAutosizeTextAreaProperties {
+  ref: React.RefObject<HTMLTextAreaElement>;
+  maxHeight?: number;
+  borderWidth?: number;
+  dependencies: React.DependencyList;
 }
 
 export function useAutosizeTextArea({
@@ -12,28 +14,27 @@ export function useAutosizeTextArea({
   maxHeight = Number.MAX_SAFE_INTEGER,
   borderWidth = 0,
   dependencies,
-}: UseAutosizeTextAreaProps) {
-  const originalHeight = useRef<number | null>(null)
+}: UseAutosizeTextAreaProperties) {
+  const originalHeight = useRef<number | null>(null);
 
   useLayoutEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) return;
 
-    const currentRef = ref.current
-    const borderAdjustment = borderWidth * 2
+    const currentReference = ref.current;
+    const borderAdjustment = borderWidth * 2;
 
     if (originalHeight.current === null) {
-      originalHeight.current = currentRef.scrollHeight - borderAdjustment
+      originalHeight.current = currentReference.scrollHeight - borderAdjustment;
     }
 
-    currentRef.style.removeProperty("height")
-    const scrollHeight = currentRef.scrollHeight
+    currentReference.style.removeProperty("height");
+    const { scrollHeight } = currentReference;
 
     // Make sure we don't go over maxHeight
-    const clampedToMax = Math.min(scrollHeight, maxHeight)
+    const clampedToMax = Math.min(scrollHeight, maxHeight);
     // Make sure we don't go less than the original height
-    const clampedToMin = Math.max(clampedToMax, originalHeight.current)
+    const clampedToMin = Math.max(clampedToMax, originalHeight.current);
 
-    currentRef.style.height = `${clampedToMin + borderAdjustment}px`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxHeight, ref, ...dependencies])
+    currentReference.style.height = `${clampedToMin + borderAdjustment}px`;
+  }, [maxHeight, ref, ...dependencies]);
 }

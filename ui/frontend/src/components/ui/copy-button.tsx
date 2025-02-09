@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { Check, Copy } from "lucide-react"
+import { Check, Copy } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { cn } from "@/lib/utils";
 
-type CopyButtonProps = {
-  content: string
-  copyMessage?: string
-}
+type CopyButtonProperties = {
+  content: string;
+  copyMessage?: string;
+};
 
-export function CopyButton({ content, copyMessage }: CopyButtonProps) {
+export function CopyButton({ content, copyMessage }: CopyButtonProperties) {
   const { isCopied, handleCopy } = useCopyToClipboard({
     text: content,
     copyMessage,
-  })
+  });
 
   return (
     <Button
@@ -29,16 +29,16 @@ export function CopyButton({ content, copyMessage }: CopyButtonProps) {
         <Check
           className={cn(
             "h-4 w-4 transition-transform ease-in-out",
-            isCopied ? "scale-100" : "scale-0"
+            isCopied ? "scale-100" : "scale-0",
           )}
         />
       </div>
       <Copy
         className={cn(
           "h-4 w-4 transition-transform ease-in-out",
-          isCopied ? "scale-0" : "scale-100"
+          isCopied ? "scale-0" : "scale-100",
         )}
       />
     </Button>
-  )
+  );
 }

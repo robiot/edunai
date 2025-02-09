@@ -1,19 +1,22 @@
+/* eslint-disable unused-imports/no-unused-vars */
+import { Message } from "ai";
+
 import {
+  type ChatMessageProperties,
+  // type Message,
   ChatMessage,
-  type ChatMessageProps,
-  type Message,
-} from "@/components/ui/chat-message"
-import { TypingIndicator } from "@/components/ui/typing-indicator"
+} from "@/components/ui/chat-message";
+import { TypingIndicator } from "@/components/ui/typing-indicator";
 
-type AdditionalMessageOptions = Omit<ChatMessageProps, keyof Message>
+type AdditionalMessageOptions = Omit<ChatMessageProperties, keyof Message>;
 
-interface MessageListProps {
-  messages: Message[]
-  showTimeStamps?: boolean
-  isTyping?: boolean
+interface MessageListProperties {
+  messages: Message[];
+  showTimeStamps?: boolean;
+  isTyping?: boolean;
   messageOptions?:
     | AdditionalMessageOptions
-    | ((message: Message) => AdditionalMessageOptions)
+    | ((message: Message) => AdditionalMessageOptions);
 }
 
 export function MessageList({
@@ -21,14 +24,14 @@ export function MessageList({
   showTimeStamps = true,
   isTyping = false,
   messageOptions,
-}: MessageListProps) {
+}: MessageListProperties) {
   return (
     <div className="space-y-4 overflow-visible">
       {messages.map((message, index) => {
         const additionalOptions =
           typeof messageOptions === "function"
             ? messageOptions(message)
-            : messageOptions
+            : messageOptions;
 
         return (
           <ChatMessage
@@ -37,9 +40,9 @@ export function MessageList({
             {...message}
             {...additionalOptions}
           />
-        )
+        );
       })}
       {isTyping && <TypingIndicator />}
     </div>
-  )
+  );
 }

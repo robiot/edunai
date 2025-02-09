@@ -7,10 +7,10 @@ export interface ToolInvocation {
   result: any;
 }
 
-export interface ToolResult<TName extends string, TArgs, TResult> {
+export interface ToolResult<TName extends string, TArguments, TResult> {
   toolCallId: string;
   toolName: TName;
-  args: TArgs;
+  args: TArguments;
   result: TResult;
 }
 
@@ -27,21 +27,26 @@ export interface JsonActionResult {
  */
 export function extractToolInvocations(content: string): ToolInvocation[] {
   const toolInvocations: ToolInvocation[] = [];
-  
+
   // Match pattern: <tool>json_action</tool> {...} </tool>
-  const toolMatches = content.match(/<tool>json_action<\/tool>\s*({[\s\S]*?})\s*<\/tool>/g);
-  
+  const toolMatches = content.match(
+    /<tool>json_action<\/tool>\s*({[\S\s]*?})\s*<\/tool>/g,
+  );
+
   if (!toolMatches) return [];
 
-  toolMatches.forEach((match, index) => {
+  //@ts-ignore
+  for (const [index, match] of toolMatches.entries()) {
     // Extract the JSON part
-    const jsonMatch = match.match(/<tool>json_action<\/tool>\s*({[\s\S]*?})\s*<\/tool>/);
-    
+    const jsonMatch = match.match(
+      /<tool>json_action<\/tool>\s*({[\S\s]*?})\s*<\/tool>/,
+    );
+
     if (jsonMatch && jsonMatch[1]) {
       try {
         // Parse the JSON content
         const result = JSON.parse(jsonMatch[1]);
-        
+
         // Create a tool invocation object
         const toolInvocation: ToolInvocation = {
           state: "result",
@@ -49,15 +54,15 @@ export function extractToolInvocations(content: string): ToolInvocation[] {
           // Generate a unique ID for each tool call
           toolCallId: `json_action_${Date.now()}_${index}`,
           args: {}, // The original arguments (empty for now since we don't have them)
-          result: result
+          result: result,
         };
-        
+
         toolInvocations.push(toolInvocation);
       } catch (error) {
-        console.error('Failed to parse JSON from tool invocation:', error);
+        console.error("Failed to parse JSON from tool invocation:", error);
       }
     }
-  });
+  }
 
   return toolInvocations;
-} 
+}

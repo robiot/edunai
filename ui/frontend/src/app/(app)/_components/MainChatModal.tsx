@@ -19,8 +19,7 @@ export const MainChatModal: FC<{
           handleInputChange={chat.handleInputChange}
           handleSubmit={chat.handleSubmit}
           isGenerating={chat.isLoading}
-          append={chat.append}
-          suggestions={["Create card", "Explain this"]}
+          //   append={chat.append}
           stop={stop}
         />
       </div>

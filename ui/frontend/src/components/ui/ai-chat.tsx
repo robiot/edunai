@@ -1,7 +1,6 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
 "use client";
 
-import { Message } from "ai";
 import { useChat } from "ai/react";
 
 import { Card } from "@/components/ui/card";
@@ -91,15 +90,15 @@ When performing actions, use the json_action tool with the following formats:
    - Respond in the same language as the user's message`;
 
 // Update the type used in useChat
-type ExtendedMessage = Message & {
-  toolInvocations?: {
-    state: "result" | "call";
-    toolName: string;
-    result?: any;
-    success: boolean;
-    error?: string;
-  }[];
-};
+// type ExtendedMessage = Message & {
+//   toolInvocations?: {
+//     state: "result" | "call";
+//     toolName: string;
+//     result?: any;
+//     success: boolean;
+//     error?: string;
+//   }[];
+// };
 
 export const AiChat = ({ deckId }: AiChatProperties) => {
   const { processAIResponse, isProcessing, error } = useAIActions();
@@ -133,18 +132,18 @@ export const AiChat = ({ deckId }: AiChatProperties) => {
           message.toolInvocations.push({
             ...invocation,
             state: "result",
-            // success: true,
-          });
+            success: true,
+          } as any); // since we are using a deprecated api, we need to cast to any
         } catch (error) {
           console.error("Failed to process tool invocation:", error);
           message.toolInvocations = message.toolInvocations || [];
           message.toolInvocations.push({
             ...invocation,
             state: "result",
-            // success: false,
+            success: false,
 
-            // error: error.message,
-          });
+            error: (error as Error).message,
+          } as any);
         }
       }
     },

@@ -11,10 +11,10 @@ import { Container } from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/lib/supabase";
 
 import { DecksTable } from "./_components/DecksTable";
 import { MainChatModal } from "./_components/MainChatModal";
-import { supabase } from "@/lib/supabase";
 
 const schema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
@@ -28,20 +28,16 @@ const DecksPage = () => {
     resolver: zodResolver(schema),
   });
 
-
   const [userName, setUserName] = useState<string>("");
 
   // Get user data on component mount
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session?.user) {
-      setUserName(
-        session.user.user_metadata.name.split(" ")[0] || "User",
-      );
+      setUserName(session.user.user_metadata.name.split || "User");
     }
   });
 
   const [initValue, setInitValue] = useState<string | null>(null);
-
 
   return (
     <div className="pb-24">

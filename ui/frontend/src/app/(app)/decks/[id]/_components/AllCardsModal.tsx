@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { ListFilter } from "lucide-react";
+import { ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useFSRS } from "@/hooks/useFSRS";
 
 // Interface for the card data structure
@@ -21,14 +21,14 @@ interface Card {
   next_review: string;
 }
 
-interface AllCardsModalProps {
+interface AllCardsModalProperties {
   deckId: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
-export function AllCardsModal({ deckId, children }: AllCardsModalProps) {
+export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
   const { useDueCards } = useFSRS();
-  
+
   // Set a high limit to get all cards
   const { data: cards = [], isLoading } = useDueCards(Number(deckId), 1000);
 
@@ -46,7 +46,7 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProps) {
         <DialogHeader>
           <DialogTitle>All Cards in Deck</DialogTitle>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="flex justify-center p-4">Loading cards...</div>
         ) : (
@@ -70,4 +70,4 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -2,6 +2,8 @@ import { ChevronDown, ListFilter, LogOut, WalletCards } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
+import { AllCardsModal } from "@/app/(app)/decks/[id]/_components/AllCardsModal";
+import { CreateCardModal } from "@/app/(app)/decks/[id]/_components/CreateCardModal";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,13 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/lib/supabase";
-import { CreateCardModal } from "@/app/(app)/decks/[id]/_components/CreateCardModal";
-import { AllCardsModal } from "@/app/(app)/decks/[id]/_components/AllCardsModal";
 
 export const Navbar: FC = () => {
   const router = useRouter();
-  const params = useParams();
-  const deckId = params?.id as string;
+  const parameters = useParams();
+  const deckId = parameters?.id as string;
   const [userName, setUserName] = useState<string>("");
 
   // Get user data on component mount
@@ -38,7 +38,7 @@ export const Navbar: FC = () => {
     <div className="w-full sticky inset-0 border-b-border border-b h-16 bg-background">
       <div
         className="w-full flex h-full justify-between items-center px-4"
-        
+
         // size="large"
       >
         <h1 className="text-2xl text-[#605BFB] font-extrabold">edunai</h1>
@@ -52,7 +52,7 @@ export const Navbar: FC = () => {
                   Add Card
                 </Button>
               </CreateCardModal>
-              
+
               <AllCardsModal deckId={deckId}>
                 <Button variant="outline" size="sm" className="flex gap-2">
                   <ListFilter size={20} />

@@ -136,8 +136,10 @@ export const DecksTable: FC = () => {
                       className="text-destructive focus:text-destructive"
                       onClick={(event) => {
                         event.stopPropagation();
-                        
-                        if (confirm("Are you sure you want to delete this deck?")) {
+
+                        if (
+                          confirm("Are you sure you want to delete this deck?")
+                        ) {
                           deleteDeck.mutate(deck.deck_id);
                         }
                       }}

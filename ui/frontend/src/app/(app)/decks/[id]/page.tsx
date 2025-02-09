@@ -5,7 +5,6 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { WalletCards } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Rating, State } from "ts-fsrs";
@@ -18,9 +17,7 @@ import { SelectSeparator } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
 
-import { CreateCardModal } from "./_components/CreateCardModal";
 import { TextToSpeech } from "./_components/TTS";
-import { AllCardsModal } from "./_components/AllCardsModal";
 
 interface FlashCard {
   card_id: number;

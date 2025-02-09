@@ -20,6 +20,7 @@ import { useDueCards } from "@/hooks/useDueCards";
 
 import { CreateCardModal } from "./_components/CreateCardModal";
 import { TextToSpeech } from "./_components/TTS";
+import { AllCardsModal } from "./_components/AllCardsModal";
 
 interface FlashCard {
   card_id: number;
@@ -234,14 +235,6 @@ const DeckPage = () => {
   return (
     <div className="flex flex-1 h-full flex-col md:flex-row">
       <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
-        <div className="p-4 flex w-full">
-          <CreateCardModal onSuccess={() => dueCards.refetch()}>
-            <Button className="w-full flex gap-2">
-              <WalletCards size={24} />
-              Add card to deck
-            </Button>
-          </CreateCardModal>
-        </div>
         <div className="flex h-[calc(100vh-9rem)]">
           <AiChat deckId={deckId} />
         </div>

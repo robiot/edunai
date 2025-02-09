@@ -112,6 +112,8 @@ export async function POST(request: Request) {
         return handleDeleteDeck(body, supabaseAuth);
       case "delete_flashcard":
         return handleDeleteFlashcard(body, supabaseAuth);
+      case "update_flashcard":
+        return handleUpdateFlashcard(body, supabaseAuth);
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
@@ -371,4 +373,25 @@ async function handleDeleteFlashcard(body: any, supabaseAuth: any) {
   }
 
   return NextResponse.json({ success: true });
+}
+
+// Add this new handler function
+async function handleUpdateFlashcard(body: any, supabaseAuth: any) {
+  const { card_id, front_content, back_content } = body;
+
+  const { data, error } = await supabaseAuth
+    .from("cards")
+    .update({
+      front_content,
+      back_content,
+    })
+    .eq("card_id", card_id)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
 }

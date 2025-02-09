@@ -166,6 +166,39 @@ export function useFSRS() {
     });
   };
 
+  // Update a flashcard
+  const useUpdateFlashcard = () => {
+    return useMutation({
+      mutationFn: async ({
+        card_id,
+        front_content,
+        back_content,
+      }: {
+        card_id: number;
+        front_content: string;
+        back_content: string;
+      }) => {
+        const response = await fetch("/api/fsrs", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({
+            action: "update_flashcard",
+            card_id,
+            front_content,
+            back_content,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to update flashcard");
+
+        return response.json();
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["due_cards"] });
+      },
+    });
+  };
+
   return {
     useDecks,
     useCreateDeck,
@@ -174,5 +207,6 @@ export function useFSRS() {
     useCreateFlashcard,
     useDeleteDeck,
     useDeleteFlashcard,
+    useUpdateFlashcard,
   };
 }

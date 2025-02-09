@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const { text } = await request.json();
-    const apiKey = "sk_426991c5a91b6afd6f62dcb399da5b86311ae1a34c9ca06f"; // cba to make this a env var
+    const apiKey = "sk_397f04d0938b77a1ed65d8d5dfee412d0c8bb491969d4fb2"; // cba to make this a env var
     const voiceId = "4VZIsMPtgggwNg7OXbPY"; // Replace with a valid voice ID
 
     //fQj4gJSexpu8RDE2Ii5m

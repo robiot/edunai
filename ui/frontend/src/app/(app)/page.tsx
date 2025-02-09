@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { useChat } from "ai/react";
 import { Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,16 +27,14 @@ const DecksPage = () => {
     resolver: zodResolver(schema),
   });
 
-  const chat = useChat({
-    api: "/api/chat",
-  });
+  const [initValue, setInitValue] = useState<string | null>(null);
 
   return (
     <div className="pb-24">
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="bg-[#F3F6FA]">
           <DialogTitle className="text-2xl font-bold hidden">Chat</DialogTitle>
-          <MainChatModal chat={chat} />
+          {modalOpen && <MainChatModal defaultPrompt={initValue ?? ""} />}
         </DialogContent>
       </Dialog>
       <div className="bg-[#F3F6FA] py-24">
@@ -48,9 +45,10 @@ const DecksPage = () => {
             onSubmit={form.handleSubmit(async (data) => {
               setModalOpen(true);
 
+              setInitValue(data.prompt);
+
               form.reset();
 
-              chat.setInput(data.prompt);
               // this fucking shit is not working, im not spending more time on this at 2am
 
               // await new Promise((resolve) => setTimeout(resolve, 1000));

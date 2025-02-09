@@ -2,15 +2,18 @@
 "use client";
 
 import { useChat } from "ai/react";
+import { useEffect } from "react";
 
-import { Card } from "@/components/ui/card";
 import { Chat } from "@/components/ui/chat";
 import { useAIActions } from "@/hooks/useAIActions";
 import { extractToolInvocations } from "@/lib/tool-invocations";
+import { cn } from "@/lib/utils";
 
 // Update interface for the AiChat component props
 interface AiChatProperties {
   deckId?: string; // Make optional since we might use the chat without a deck context
+  fullHeight?: boolean;
+  defaultPrompt?: string;
 }
 
 // Update the system prompt to include emoji instructions
@@ -87,7 +90,12 @@ When performing actions, use the json_action tool with the following formats:
 3. **General Instructions**:
    - Use the json_action tool for all actions
    - Format your explanations in markdown
-   - Respond in the same language as the user's message`;
+   - Respond in the same language as the user's message
+
+4. **For languages using other alphabets than English**:
+- Include the romanized version on the back of the card if the front is in the language's script, along with an equals followed by the translation.
+- For example, if the front of the card is "你好", the back should be "Nǐ hǎo = Hello".
+`;
 
 // Update the type used in useChat
 // type ExtendedMessage = Message & {
@@ -100,7 +108,11 @@ When performing actions, use the json_action tool with the following formats:
 //   }[];
 // };
 
-export const AiChat = ({ deckId }: AiChatProperties) => {
+export const AiChat = ({
+  deckId,
+  fullHeight,
+  defaultPrompt,
+}: AiChatProperties) => {
   const { processAIResponse, isProcessing, error } = useAIActions();
 
   const {
@@ -109,6 +121,7 @@ export const AiChat = ({ deckId }: AiChatProperties) => {
     handleInputChange,
     handleSubmit,
     append,
+    setInput,
     stop,
     isLoading: isChatLoading,
   } = useChat({
@@ -149,8 +162,13 @@ export const AiChat = ({ deckId }: AiChatProperties) => {
     },
   });
 
+  useEffect(() => {
+    console.log("setting rn to", defaultPrompt);
+    setInput(defaultPrompt || "");
+  }, [defaultPrompt]);
+
   return (
-    <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
+    <>
       {/* Show processing state or error if any */}
       {isProcessing && (
         <div className="p-2 text-sm text-blue-600">
@@ -162,19 +180,27 @@ export const AiChat = ({ deckId }: AiChatProperties) => {
       )}
 
       {/* Chat section */}
-      <div className="flex h-[calc(100vh-9rem)]">
+      <div
+        className={cn(fullHeight ? "flex h-[calc(100vh-9rem)]" : "flex w-full")}
+      >
         <Chat
+          {...(fullHeight
+            ? {
+                append,
+                suggestions: ["Create card", "Explain this"],
+              }
+            : {
+                isGenerating: isChatLoading, // gotta have smt here
+              })}
           messages={messages as any}
           input={input}
           className="py-5 px-4"
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
           isGenerating={isChatLoading}
-          append={append}
-          suggestions={["Create card", "Explain this"]}
           stop={stop}
         />
       </div>
-    </Card>
+    </>
   );
 };

@@ -34,7 +34,7 @@ interface FlashCard {
   scheduled_days?: number;
   reps?: number;
   lapses?: number;
-  // state?: CardState;
+  // state?: CardState;cl
   last_review?: string;
 }
 
@@ -236,7 +236,9 @@ const DeckPage = () => {
     <div className="flex flex-1 h-full flex-col md:flex-row">
       <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
         <div className="flex h-[calc(100vh-9rem)]">
-          <AiChat deckId={deckId} />
+          <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
+            <AiChat deckId={deckId} fullHeight />
+          </Card>
         </div>
       </Card>
       <Container className="h-[unset] flex-1 rounded-none flex justify-center">

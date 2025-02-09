@@ -108,6 +108,10 @@ export async function POST(request: Request) {
         return handleCreateFlashcard(body, supabaseAuth);
       case "review_flashcard":
         return handleReviewFlashcard(body, supabaseAuth);
+      case "delete_deck":
+        return handleDeleteDeck(body, supabaseAuth);
+      case "delete_flashcard":
+        return handleDeleteFlashcard(body, supabaseAuth);
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
@@ -324,4 +328,47 @@ async function handleGetDecks(userId: string) {
   }
 
   return NextResponse.json(data);
+}
+
+// Handler for deleting a deck and all its flashcards
+async function handleDeleteDeck(body: any, supabaseAuth: any) {
+  const { deck_id } = body;
+
+  // First delete all flashcards in the deck
+  const { error: cardsError } = await supabaseAuth
+    .from("cards")
+    .delete()
+    .eq("deck_id", deck_id);
+
+  if (cardsError) {
+    return NextResponse.json({ error: cardsError.message }, { status: 500 });
+  }
+
+  // Then delete the deck itself
+  const { error: deckError } = await supabaseAuth
+    .from("decks")
+    .delete()
+    .eq("deck_id", deck_id);
+
+  if (deckError) {
+    return NextResponse.json({ error: deckError.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+// Handler for deleting a single flashcard
+async function handleDeleteFlashcard(body: any, supabaseAuth: any) {
+  const { card_id } = body;
+
+  const { error } = await supabaseAuth
+    .from("cards")
+    .delete()
+    .eq("card_id", card_id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

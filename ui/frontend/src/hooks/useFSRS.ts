@@ -124,11 +124,55 @@ export function useFSRS() {
     });
   };
 
+  // Delete a deck
+  const useDeleteDeck = () => {
+    return useMutation({
+      mutationFn: async (deck_id: number) => {
+        const response = await fetch("/api/fsrs", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({ action: "delete_deck", deck_id }),
+        });
+
+        if (!response.ok) throw new Error("Failed to delete deck");
+
+        return response.json();
+      },
+      onSuccess: () => {
+        // Invalidate both decks and due cards queries
+        queryClient.invalidateQueries({ queryKey: ["decks"] });
+        queryClient.invalidateQueries({ queryKey: ["due_cards"] });
+      },
+    });
+  };
+
+  // Delete a flashcard
+  const useDeleteFlashcard = () => {
+    return useMutation({
+      mutationFn: async (card_id: number) => {
+        const response = await fetch("/api/fsrs", {
+          method: "POST",
+          headers: getHeaders(),
+          body: JSON.stringify({ action: "delete_flashcard", card_id }),
+        });
+
+        if (!response.ok) throw new Error("Failed to delete flashcard");
+
+        return response.json();
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["due_cards"] });
+      },
+    });
+  };
+
   return {
     useDecks,
     useCreateDeck,
     useDueCards,
     useReviewCard,
     useCreateFlashcard,
+    useDeleteDeck,
+    useDeleteFlashcard,
   };
 }

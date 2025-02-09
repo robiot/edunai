@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -22,54 +22,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDecks } from "@/hooks/useDecks";
-import { supabase } from "@/lib/supabase";
+import { useFSRS } from "@/hooks/useFSRS";
 
 import { CreateDeckModal } from "./CreateDeckModal";
+
+interface Deck {
+  deck_id: number;
+  deck_name: string;
+  emoji: string;
+  created_at: string;
+  description?: string;
+}
 
 export const DecksTable: FC = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { useDeleteDeck } = useFSRS();
 
   // Fetch decks with proper error handling
   const { data: decks, isLoading, isError, error } = useDecks();
 
-  // Delete deck mutation with proper error handling
-  const deleteDeck = useMutation({
-    mutationFn: async (deckId: number) => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const accessToken = session?.access_token;
-
-      if (!accessToken) {
-        throw new Error("Not authenticated");
-      }
-
-      const response = await fetch("/api/fsrs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          Cookie: `sb-access-token=${accessToken}`,
-        },
-        body: JSON.stringify({
-          action: "delete_deck",
-          deck_id: deckId,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        throw new Error(errorData.error || "Failed to delete deck");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decks"] });
-    },
-  });
+  // Use the new delete deck mutation
+  const deleteDeck = useDeleteDeck();
 
   // Loading state with spinner or skeleton
   if (isLoading) {
@@ -122,7 +96,7 @@ export const DecksTable: FC = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {decks.map((deck) => (
+          {decks.map((deck: Deck) => (
             <TableRow
               key={deck.deck_id}
               className="cursor-pointer hover:bg-muted/50"
@@ -162,10 +136,8 @@ export const DecksTable: FC = () => {
                       className="text-destructive focus:text-destructive"
                       onClick={(event) => {
                         event.stopPropagation();
-
-                        if (
-                          confirm("Are you sure you want to delete this deck?")
-                        ) {
+                        
+                        if (confirm("Are you sure you want to delete this deck?")) {
                           deleteDeck.mutate(deck.deck_id);
                         }
                       }}

@@ -238,7 +238,11 @@ const DeckPage = () => {
     <div className="flex flex-1 h-full flex-col md:flex-row">
       <Card className="bg-[#F3F6FA] rounded-none flex-shrink-0 flex items-end justify-center flex-col relative">
         <div className="flex h-[calc(100vh-9rem)]">
-          <AiChat deckId={deckId} fullHeight />
+          <AiChat 
+            deckId={deckId} 
+            fullHeight 
+            currentCard={currentCard}
+          />
         </div>
       </Card>
       <Container className="h-[unset] flex-1 rounded-none flex justify-center">

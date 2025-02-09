@@ -16,14 +16,24 @@ interface AiChatProperties {
   deckId?: string; // Make optional since we might use the chat without a deck context
   fullHeight?: boolean;
   defaultPrompt?: string;
+  currentCard?: {
+    card_id: number;
+    front_content: string;
+    back_content: string;
+  };
 }
 
-// Update the system prompt to include emoji instructions
+// Update the system prompt to include emoji instructions and current card context
 const getSystemPrompt = (
   deckId?: string,
+  currentCard?: AiChatProperties['currentCard'],
 ) => `You are an intelligent assistant designed to help manage flashcards and decks.${
-  deckId ? `\nYou are currently working with deck ID: ${deckId}.` : ""
-}
+  deckId ? `\nYou are currently working with deck ID: ${deckId}.` : ""}${
+  currentCard 
+    ? `\nCurrently viewing card ID: ${currentCard.card_id}
+       Front content: "${currentCard.front_content}"
+       Back content: "${currentCard.back_content}"`
+    : ""}
 
 When performing actions, use the json_action tool with the following formats:
 
@@ -114,6 +124,7 @@ export const AiChat = ({
   deckId,
   fullHeight,
   defaultPrompt,
+  currentCard,
 }: AiChatProperties) => {
   const { processAIResponse, isProcessing, error } = useAIActions();
 
@@ -129,8 +140,9 @@ export const AiChat = ({
   } = useChat({
     api: "/api/chat",
     body: {
-      systemPrompt: getSystemPrompt(deckId),
+      systemPrompt: getSystemPrompt(deckId, currentCard),
       currentDeckId: deckId,
+      currentCard,
     },
     onFinish: async (message) => {
       // Extract tool invocations from the message

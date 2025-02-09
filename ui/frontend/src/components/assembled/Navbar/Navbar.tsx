@@ -1,7 +1,7 @@
-import { ChevronDown, ListFilter, LogOut, WalletCards } from "lucide-react";
+import { ChevronDown, ListFilter, LogOut, WalletCards, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 
 import { AllCardsModal } from "@/app/(app)/decks/[id]/_components/AllCardsModal";
 import { CreateCardModal } from "@/app/(app)/decks/[id]/_components/CreateCardModal";
@@ -13,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/lib/supabase";
+import { useFSRS } from "@/hooks/useFSRS";
 
 export const Navbar: FC = () => {
   const router = useRouter();
   const parameters = useParams();
   const deckId = parameters?.id as string;
   const [userName, setUserName] = useState<string>("");
+  const { useDecks } = useFSRS();
+  const { data: decks } = useDecks();
 
   // Get user data on component mount
   supabase.auth.getSession().then(({ data: { session } }) => {
@@ -47,6 +50,28 @@ export const Navbar: FC = () => {
         </Link>
 
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex gap-2">
+                <FolderOpen size={20} />
+                Switch Deck
+                <ChevronDown size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {decks?.map((deck: any) => (
+                <DropdownMenuItem key={deck.deck_id} asChild>
+                  <Link
+                    href={`/decks/${deck.deck_id}`}
+                    className="cursor-pointer w-full"
+                  >
+                    {deck.deck_name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {deckId && (
             <>
               <CreateCardModal onSuccess={() => window.location.reload()}>

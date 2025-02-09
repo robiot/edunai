@@ -1,10 +1,11 @@
-import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
-import { environment } from '@/lib/environment';
+import { createClient, Session } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+
+import { environment } from "@/lib/environment";
 
 const supabase = createClient(
   environment.SUPABASE_URL,
-  environment.SUPABASE_ANON_KEY
+  environment.SUPABASE_ANON_KEY,
 );
 
 export function useAuth() {
@@ -34,4 +35,4 @@ export function useAuth() {
     loading,
     supabase,
   };
-} 
+}

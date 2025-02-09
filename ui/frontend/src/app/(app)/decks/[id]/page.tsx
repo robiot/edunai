@@ -1,23 +1,30 @@
+/* eslint-disable unicorn/consistent-function-scoping */
+/* eslint-disable sonarjs/cognitive-complexity */
+/* eslint-disable unicorn/no-nested-ternary */
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useChat } from "ai/react";
 import { WalletCards } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
-import { useAuth } from '@/hooks/useAuth';
-import { State, Rating } from "ts-fsrs";
+import { useCallback, useEffect, useState } from "react";
+import { Rating, State } from "ts-fsrs";
 
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chat } from "@/components/ui/chat";
 import { SelectSeparator } from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import { useDueCards } from "@/hooks/useDueCards";
+
+import { CreateCardModal } from "./_components/CreateCardModal";
 
 enum CardState {
-  New = 'New',
-  Learning = 'Learning',
-  Review = 'Review',
-  Relearning = 'Relearning'
+  New = "New",
+  Learning = "Learning",
+  Review = "Review",
+  Relearning = "Relearning",
 }
 
 interface FlashCard {
@@ -37,48 +44,25 @@ interface FlashCard {
 }
 
 const DeckPage = () => {
-  const params = useParams();
-  const deckId = params?.id as string;
+  const parameters = useParams();
+  const deckId = parameters?.id as string;
+  const queryClient = useQueryClient();
 
-  const [cards, setCards] = useState<FlashCard[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [reviewAll, setReviewAll] = useState(false);
 
   const { session } = useAuth();
 
-  const fetchDueCards = async (reviewAll: boolean = false) => {
-    if (!deckId || !session?.access_token) return;
+  // Function to fetch due cards
 
-    try {
-      const response = await fetch(
-        `/api/fsrs?action=get_due_cards&deck_id=${deckId}&review_all=${reviewAll}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch cards');
-      }
-
-      const data = await response.json();
-      setCards(data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching cards:', error);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (session) {
-      fetchDueCards();
-    }
-  }, [deckId, session]);
+  // Use React Query to fetch cards
+  const {
+    data: cards = [],
+    isLoading,
+    error,
+    ...dueCards
+  } = useDueCards(deckId, reviewAll);
 
   const currentCard = cards[currentCardIndex];
 
@@ -97,23 +81,86 @@ const DeckPage = () => {
     },
   });
 
+  // Mutation for rating cards
+  const rateMutation = useMutation({
+    mutationFn: async ({
+      cardId,
+      rating,
+      cardState,
+    }: {
+      cardId: number;
+      rating: Rating;
+      cardState: any;
+    }) => {
+      if (!session?.access_token) throw new Error("No session");
+
+      const response = await fetch("/api/fsrs", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "review_flashcard",
+          card_id: cardId,
+          rating,
+          card_state: cardState,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(errorData.error || "Failed to submit rating");
+      }
+
+      return response.json();
+    },
+    onSuccess: (updatedCard) => {
+      // Update the cards in the cache
+      queryClient.setQueryData<FlashCard[]>(
+        ["dueCards", deckId, reviewAll],
+        (oldCards) => {
+          if (!oldCards) return [];
+
+          return oldCards.map((card) =>
+            card.card_id === updatedCard.card_id
+              ? { ...card, ...updatedCard }
+              : card,
+          );
+        },
+      );
+
+      // Move to next card or show completion
+      if (currentCardIndex < cards.length - 1) {
+        setCurrentCardIndex((previous) => previous + 1);
+        setIsCardFlipped(false);
+      } else {
+        // setCards([]);
+        setCurrentCardIndex(0);
+        setIsCardFlipped(false);
+        setReviewAll(true);
+        queryClient.invalidateQueries({ queryKey: ["dueCards", deckId] });
+      }
+    },
+  });
+
   // Helper function to get button style based on rating
   const getRatingButtonStyle = (rating: number) => {
     switch (rating) {
-      case 1: // Again
+      case 1:
         return "bg-red-600 hover:bg-red-700 text-white";
-      case 2: // Hard
+      case 2:
         return "bg-orange-500 hover:bg-orange-600 text-white";
-      case 3: // Good
+      case 3:
         return "bg-green-600 hover:bg-green-700 text-white";
-      case 4: // Easy
+      case 4:
         return "bg-blue-600 hover:bg-blue-700 text-white";
       default:
         return "";
     }
   };
 
-  // Helper function to convert our rating number to FSRS Rating enum
   const convertToFSRSRating = (rating: number): Rating => {
     switch (rating) {
       case 1:
@@ -125,124 +172,87 @@ const DeckPage = () => {
       case 4:
         return Rating.Easy;
       default:
-        return Rating.Good; // Default case
+        return Rating.Good;
     }
   };
 
-  // Memoize handleRate
-  const handleRate = useCallback(async (rating: number) => {
-    if (!currentCard || !session?.access_token) return;
+  const handleRate = useCallback(
+    async (rating: number) => {
+      if (!currentCard) return;
 
-    try {
-      const lastReview = currentCard.last_review ? new Date(currentCard.last_review) : new Date();
+      const lastReview = currentCard.last_review
+        ? new Date(currentCard.last_review)
+        : new Date();
       const now = new Date();
-      const elapsedDays = Math.max(0, (now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-      const requestBody = {
-        action: 'review_flashcard',
-        card_id: currentCard.card_id,
-        rating: convertToFSRSRating(rating), // Convert to FSRS Rating enum
-        card_state: {
-          stability: currentCard.stability || 0,
-          difficulty: currentCard.difficulty || 0,
-          elapsed_days: elapsedDays,
-          scheduled_days: currentCard.scheduled_days || 0,
-          reps: currentCard.reps || 0,
-          lapses: currentCard.lapses || 0,
-          state: currentCard.state || State.New, // Use State enum directly
-          last_review: lastReview.toISOString()
-        }
-      };
-
-      console.log('Sending request:', requestBody);
-
-      const response = await fetch('/api/fsrs', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });   
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error:', errorData);
-        throw new Error(`Failed to submit rating: ${errorData.error || 'Unknown error'}`);
-      }
-
-      const updatedCard = await response.json();
-      
-      // Update the current card in the cards array
-      setCards(prevCards => 
-        prevCards.map(card => 
-          card.card_id === currentCard.card_id ? {
-            ...card,
-            ...updatedCard,
-            next_review: updatedCard.next_review,
-            retrievability: updatedCard.retrievability,
-            stability: updatedCard.stability,
-            difficulty: updatedCard.difficulty,
-            reps: updatedCard.reps,
-            lapses: updatedCard.lapses,
-            state: updatedCard.state,
-            last_review: updatedCard.last_review
-          } : card
-        )
+      const elapsedDays = Math.max(
+        0,
+        (now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24),
       );
 
-      // Move to next card or show completion message
-      if (currentCardIndex < cards.length - 1) {
-        setCurrentCardIndex(prev => prev + 1);
-        setIsCardFlipped(false); // Reset flip state for new card
-      } else {
-        // All cards reviewed
-        setCards([]); // Clear the current deck
-        setIsCardFlipped(false); // Reset flip state
-        await fetchDueCards(true); // Fetch all cards
-      }
-    } catch (error) {
-      console.error('Error rating card:', error);
-    }
-  }, [currentCard, currentCardIndex, cards.length, session?.access_token, fetchDueCards]);
+      const cardState = {
+        stability: currentCard.stability || 0,
+        difficulty: currentCard.difficulty || 0,
+        elapsed_days: elapsedDays,
+        scheduled_days: currentCard.scheduled_days || 0,
+        reps: currentCard.reps || 0,
+        lapses: currentCard.lapses || 0,
+        state: currentCard.state || State.New,
+        last_review: lastReview.toISOString(),
+      };
+
+      rateMutation.mutate({
+        cardId: currentCard.card_id,
+        rating: convertToFSRSRating(rating),
+        cardState,
+      });
+    },
+    [currentCard, rateMutation],
+  );
 
   // Add space bar handler for flipping cards
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!currentCard) return;
-      
+
       switch (event.key) {
-        case ' ': // Space bar
-          event.preventDefault(); // Prevent page scroll
-          setIsCardFlipped(prev => !prev);
+        case " ":
+          event.preventDefault();
+          setIsCardFlipped((previous) => !previous);
           break;
-        case '1':
+        case "1":
           if (isCardFlipped) handleRate(1);
+
           break;
-        case '2':
+        case "2":
           if (isCardFlipped) handleRate(2);
+
           break;
-        case '3':
+        case "3":
           if (isCardFlipped) handleRate(3);
+
           break;
-        case '4':
+        case "4":
           if (isCardFlipped) handleRate(4);
+
           break;
       }
     };
 
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
+    window.addEventListener("keypress", handleKeyPress);
+
+    return () => window.removeEventListener("keypress", handleKeyPress);
   }, [currentCard, isCardFlipped, handleRate]);
 
   return (
     <div className="flex flex-1 h-full flex-col md:flex-row">
       <Card className="bg-[#F3F6FA] rounded-none w-full md:max-w-72 flex-1 flex items-end justify-center flex-col">
         <div className="p-4 flex w-full">
-          <Button className="w-full flex gap-2">
-            <WalletCards size={24} />
-            Add card to deck
-          </Button>
+          <CreateCardModal onSuccess={() => dueCards.refetch()}>
+            <Button className="w-full flex gap-2">
+              <WalletCards size={24} />
+              Add card to deck
+            </Button>
+          </CreateCardModal>
         </div>
         <div className="flex h-[calc(100vh-9rem)]">
           <Chat
@@ -264,6 +274,10 @@ const DeckPage = () => {
             <div className="flex items-center justify-center h-full">
               Loading cards...
             </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full text-red-500">
+              Error loading cards: {(error as Error).message}
+            </div>
           ) : cards.length > 0 && currentCard ? (
             <>
               <div className="flex flex-col items-center gap-3 py-16">
@@ -278,7 +292,7 @@ const DeckPage = () => {
 
               <div className="flex flex-1 gap-2 items-end justify-center py-6">
                 {!isCardFlipped ? (
-                  <Button 
+                  <Button
                     className="font-semibold"
                     onClick={() => setIsCardFlipped(true)}
                   >
@@ -289,26 +303,30 @@ const DeckPage = () => {
                     <Button
                       className={`${getRatingButtonStyle(1)} font-semibold`}
                       onClick={() => handleRate(1)}
+                      disabled={rateMutation.isPending}
                     >
                       Again
                     </Button>
                     <Button
                       className={`${getRatingButtonStyle(2)} font-semibold`}
                       onClick={() => handleRate(2)}
+                      disabled={rateMutation.isPending}
                     >
-                      Hard 
+                      Hard
                     </Button>
                     <Button
                       className={`${getRatingButtonStyle(3)} font-semibold`}
                       onClick={() => handleRate(3)}
+                      disabled={rateMutation.isPending}
                     >
-                      Good 
+                      Good
                     </Button>
                     <Button
                       className={`${getRatingButtonStyle(4)} font-semibold`}
                       onClick={() => handleRate(4)}
+                      disabled={rateMutation.isPending}
                     >
-                      Easy 
+                      Easy
                     </Button>
                   </>
                 )}
@@ -317,10 +335,13 @@ const DeckPage = () => {
           ) : (
             <div className="flex flex-col items-center justify-center h-full gap-4">
               <div>No more cards due for review! 🎉</div>
-              <Button 
+              <Button
                 onClick={() => {
                   setCurrentCardIndex(0);
-                  fetchDueCards(true); // Pass true to get all cards
+                  setReviewAll(true);
+                  queryClient.invalidateQueries({
+                    queryKey: ["dueCards", deckId],
+                  });
                 }}
               >
                 Review Cards Again

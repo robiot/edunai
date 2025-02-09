@@ -1,9 +1,10 @@
 "use client";
 
-import { ListFilter, Trash2, Pencil } from "lucide-react";
+import { ListFilter, Pencil, Trash2 } from "lucide-react";
 import { ReactNode, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useFSRS } from "@/hooks/useFSRS";
 import { Input } from "@/components/ui/input";
+import { useFSRS } from "@/hooks/useFSRS";
 
 // Interface for the card data structure
 interface Card {
@@ -45,10 +45,10 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
 
   // Handle checkbox selection
   const handleSelect = (cardId: number) => {
-    setSelectedCards(prev =>
-      prev.includes(cardId)
-        ? prev.filter(id => id !== cardId)
-        : [...prev, cardId]
+    setSelectedCards((previous) =>
+      previous.includes(cardId)
+        ? previous.filter((id) => id !== cardId)
+        : [...previous, cardId],
     );
   };
 
@@ -71,13 +71,13 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
   // Handle save edit
   const handleSaveEdit = async () => {
     if (!editingCard) return;
-    
+
     await updateCard.mutateAsync({
       card_id: editingCard.card_id,
       front_content: editedFront,
-      back_content: editedBack
+      back_content: editedBack,
     });
-    
+
     setEditingCard(null);
   };
 
@@ -116,10 +116,7 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
         ) : (
           <div className="grid gap-4">
             {cards.map((card: Card) => (
-              <div
-                key={card.card_id}
-                className="border rounded-lg p-4"
-              >
+              <div key={card.card_id} className="border rounded-lg p-4">
                 <div className="flex gap-4">
                   {/* Main content area */}
                   <div className="flex-1">
@@ -128,26 +125,43 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
                       <div className="space-y-2">
                         <Input
                           value={editedFront}
-                          onChange={(e) => setEditedFront(e.target.value)}
+                          onChange={(event) =>
+                            setEditedFront(event.target.value)
+                          }
                           placeholder="Front content"
                         />
                         <Input
                           value={editedBack}
-                          onChange={(e) => setEditedBack(e.target.value)}
+                          onChange={(event) =>
+                            setEditedBack(event.target.value)
+                          }
                           placeholder="Back content"
                         />
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={handleSaveEdit}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => setEditingCard(null)}>Cancel</Button>
+                          <Button size="sm" onClick={handleSaveEdit}>
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingCard(null)}
+                          >
+                            Cancel
+                          </Button>
                         </div>
                       </div>
                     ) : (
                       // View mode
                       <div>
-                        <div className="font-medium">Front: {card.front_content}</div>
-                        <div className="text-muted-foreground">Back: {card.back_content}</div>
+                        <div className="font-medium">
+                          Front: {card.front_content}
+                        </div>
+                        <div className="text-muted-foreground">
+                          Back: {card.back_content}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          Next Review: {new Date(card.next_review).toLocaleDateString()}
+                          Next Review:{" "}
+                          {new Date(card.next_review).toLocaleDateString()}
                         </div>
                       </div>
                     )}
@@ -160,7 +174,7 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEditCard(card)}
-                        className="h-8 w-8 p-0"  // Make it square
+                        className="h-8 w-8 p-0" // Make it square
                       >
                         <Pencil size={16} />
                       </Button>
@@ -168,7 +182,7 @@ export function AllCardsModal({ deckId, children }: AllCardsModalProperties) {
                     <Checkbox
                       checked={selectedCards.includes(card.card_id)}
                       onCheckedChange={() => handleSelect(card.card_id)}
-                      className="h-4 w-4 rounded-[6px] "  // Make checkbox slightly smaller than button
+                      className="h-4 w-4 rounded-[6px] " // Make checkbox slightly smaller than button
                     />
                   </div>
                 </div>

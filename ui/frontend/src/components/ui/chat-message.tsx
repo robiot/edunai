@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-nested-ternary */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable no-redeclare */
@@ -6,7 +7,7 @@
 import { Message } from "ai";
 import { type VariantProps, cva } from "class-variance-authority";
 import { Check, Loader2 } from "lucide-react";
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { FilePreview } from "@/components/ui/file-preview";

@@ -5,8 +5,9 @@
 
 import { Message } from "ai";
 import { type VariantProps, cva } from "class-variance-authority";
-import { Check } from "lucide-react";
-import React, { useMemo } from "react";
+import { Check, Loader2 } from "lucide-react";
+import React, { useMemo, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { FilePreview } from "@/components/ui/file-preview";
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
@@ -192,7 +193,7 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
     return cleanContent !== content;
   }, [content]);
 
-  // Get the success message based on the tool call type
+  // Modify the getSuccessMessage to show toast
   const getSuccessMessage = useMemo(() => {
     const match = content.match(
       /<tool>json_action<\/tool>\s*({[\S\s]*?})\s*<\/tool>/,
@@ -202,21 +203,54 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
 
     try {
       const json = JSON.parse(match[1]);
+      let message = "Action completed successfully!";
 
       switch (json.action) {
         case "add_card":
-          return "Card added successfully!";
+          message = "Card added successfully!";
+          break;
         case "create_deck_with_cards":
-          return "Deck and cards created successfully!";
+          message = `Deck and ${json.cards?.length || 0} cards created successfully!`;
+          break;
         case "add_deck":
-          return "Deck created successfully!";
+          message = `Deck "${json.deck_name}" created successfully!`;
+          break;
         case "add_cards":
-          return "Cards added successfully!";
+          message = `${json.cards?.length || 0} cards added successfully!`;
+          break;
         default:
-          return "Action completed successfully!";
+          message = "Action completed successfully!";
       }
+
+      // Show toast notification
+      toast.success(message, {
+        duration: 3000,
+        position: "bottom-right",
+      });
+
+      return message;
     } catch {
       return "Action completed successfully!";
+    }
+  }, [content]);
+
+  // Add these states
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Add this effect to handle the processing state
+  useEffect(() => {
+    if (content.includes("<tool>json_action</tool>")) {
+      setIsProcessing(true);
+      setShowSuccess(false);
+
+      // Show processing state for 1.5 seconds
+      const timer = setTimeout(() => {
+        setIsProcessing(false);
+        setShowSuccess(true);
+      }, 1500);
+
+      return () => clearTimeout(timer);
     }
   }, [content]);
 
@@ -263,10 +297,21 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
         {!isUser && hadToolCall && (
           <div className="mt-2 flex items-center justify-stretch w-full">
             <div className="rounded-md bg-green-100 px-3 py-2 flex items-center gap-2 w-full justify-center">
-              <Check className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-600">
-                {getSuccessMessage}
-              </span>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 text-green-600 animate-spin" />
+                  <span className="text-sm text-green-600">
+                    Processing action...
+                  </span>
+                </>
+              ) : showSuccess ? (
+                <>
+                  <Check className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-600">
+                    {getSuccessMessage}
+                  </span>
+                </>
+              ) : null}
             </div>
           </div>
         )}

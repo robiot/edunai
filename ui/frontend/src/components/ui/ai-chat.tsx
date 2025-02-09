@@ -21,14 +21,23 @@ interface AiChatProperties {
     front_content: string;
     back_content: string;
   };
+  deckName?: string;
+  deckDescription?: string;
 }
 
 // Update the system prompt to include emoji instructions and current card context
 const getSystemPrompt = (
   deckId?: string,
   currentCard?: AiChatProperties['currentCard'],
+  deckName?: string,
+  deckDescription?: string,
 ) => `You are an intelligent assistant designed to help manage flashcards and decks.${
-  deckId ? `\nYou are currently working with deck ID: ${deckId}.` : ""}${
+  deckId 
+    ? `\nYou are currently working with:
+       Deck ID: ${deckId}
+       ${deckName ? `Deck Name: ${deckName}` : ''}
+       ${deckDescription ? `Deck Description: ${deckDescription}` : ''}`
+    : ""}${
   currentCard 
     ? `\nCurrently viewing card ID: ${currentCard.card_id}
        Front content: "${currentCard.front_content}"
@@ -103,10 +112,17 @@ When performing actions, use the json_action tool with the following formats:
    - Use the json_action tool for all actions
    - Format your explanations in markdown
    - Respond in the same language as the user's message
+   - Don't ask for clarification if the user's message is clear
+   - Don't ask for the front or back of the card, since you will create the card yourself
+   - You are supposed to create the card yourself, not ask for the front or back of the card
+   - Give a very short explanation of the card, before creating it
+
 
 4. **For languages using other alphabets than English**:
 - Include the romanized version on the back of the card if the front is in the language's script, along with an equals followed by the translation.
 - For example, if the front of the card is "你好", the back should be "Nǐ hǎo = Hello".
+
+
 `;
 
 // Update the type used in useChat
@@ -125,6 +141,8 @@ export const AiChat = ({
   fullHeight,
   defaultPrompt,
   currentCard,
+  deckName,
+  deckDescription,
 }: AiChatProperties) => {
   const { processAIResponse, isProcessing, error } = useAIActions();
 
@@ -140,7 +158,7 @@ export const AiChat = ({
   } = useChat({
     api: "/api/chat",
     body: {
-      systemPrompt: getSystemPrompt(deckId, currentCard),
+      systemPrompt: getSystemPrompt(deckId, currentCard, deckName, deckDescription),
       currentDeckId: deckId,
       currentCard,
     },

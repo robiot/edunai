@@ -10,26 +10,27 @@ interface Message {
   content: string;
 }
 
-function getSystemPrompt(): string {
-  return "You are a helpful AI assistant focused on education and learning.";
+interface ChatRequest {
+  messages: Message[];
+  systemPrompt?: string;
 }
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const messages: Message[] = data.messages || [];
+    const data: ChatRequest = await request.json();
+    let messages = data.messages || [];
 
-    // Add system prompt if not present
-    if (messages.length === 0 || messages[0].role !== "system") {
-      messages.unshift({
-        role: "system",
-        content: getSystemPrompt(),
-      });
+    // Add system prompt if provided
+    if (data.systemPrompt && (messages.length === 0 || messages[0].role !== "system")) {
+      messages = [
+        { role: "system", content: data.systemPrompt },
+        ...messages
+      ];
     }
 
     // Use streamText from the AI SDK for simplified streaming
     const result = streamText({
-      model: openai("gpt-4"),
+      model: openai("gpt-4o-mini"),
       messages,
     });
 

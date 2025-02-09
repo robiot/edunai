@@ -19,7 +19,15 @@ interface ChatPropertiesBase {
     event?: { preventDefault?: () => void },
     options?: { experimental_attachments?: FileList },
   ) => void;
-  messages: Array<Message>;
+  messages: Array<Message & {
+    toolInvocations?: {
+      state: "result" | "call";
+      toolName: string;
+      result?: any;
+      success?: boolean;
+      error?: string;
+    }[];
+  }>;
   input: string;
   className?: string;
   handleInputChange: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -114,6 +122,7 @@ export function Chat({
             messages={messages}
             isTyping={isTyping}
             messageOptions={messageOptions}
+            toolInvocations={messages.map(m => m.toolInvocations).filter(Boolean)}
           />
         </ChatMessages>
       ) : null}

@@ -18,6 +18,7 @@ import { Chat } from "@/components/ui/chat";
 import { SelectSeparator } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useDueCards } from "@/hooks/useDueCards";
+import { AiChat } from "@/components/ui/ai-chat";
 
 import { CreateCardModal } from "./_components/CreateCardModal";
 import { TextToSpeech } from "./_components/TTS";
@@ -215,6 +216,14 @@ const DeckPage = () => {
   // Add space bar handler for flipping cards
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      // Check if we're focused on an input element or textarea
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
       if (!currentCard) return;
 
       switch (event.key) {
@@ -224,19 +233,15 @@ const DeckPage = () => {
           break;
         case "1":
           if (isCardFlipped) handleRate(1);
-
           break;
         case "2":
           if (isCardFlipped) handleRate(2);
-
           break;
         case "3":
           if (isCardFlipped) handleRate(3);
-
           break;
         case "4":
           if (isCardFlipped) handleRate(4);
-
           break;
       }
     };
@@ -258,17 +263,7 @@ const DeckPage = () => {
           </CreateCardModal>
         </div>
         <div className="flex h-[calc(100vh-9rem)]">
-          <Chat
-            messages={messages}
-            input={input}
-            className="py-5 px-4"
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-            isGenerating={isChatLoading}
-            append={append}
-            suggestions={["Create card", "Explain this"]}
-            stop={stop}
-          />
+          <AiChat deckId={deckId} />
         </div>
       </Card>
       <Container className="h-[unset] flex-1 rounded-none flex justify-center">

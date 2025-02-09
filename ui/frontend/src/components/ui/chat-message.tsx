@@ -111,6 +111,7 @@ function formatMessageWithToolResults(
   // return only the content before the tool call
   if (content.includes("<tool>")) {
     const parts = content.split("<tool>");
+
     return parts[0].trim();
   }
 

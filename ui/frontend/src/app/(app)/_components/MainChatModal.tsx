@@ -10,7 +10,7 @@ export const MainChatModal: FC<{
   return (
     <>
       {/* Chat Modal */}
-      <div className="flex h-[50vh]">
+      <div className="flex flex-col h-[50vh]">
         <AiChat defaultPrompt={defaultPrompt} />
       </div>
       <DialogFooter className="px-4">

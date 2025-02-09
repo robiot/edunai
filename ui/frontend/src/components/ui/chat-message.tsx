@@ -92,14 +92,29 @@ export interface ChatMessageProperties extends Message {
 }
 
 /**
+ * Checks if content contains an incomplete tool call that's still streaming
+ */
+function hasIncompleteToolCall(content: string): boolean {
+  return content.includes("<tool>") && !content.includes("</tool>");
+}
+
+/**
  * Formats the message content by removing tool invocations and adding their results,
  * except for "add_card" tool calls which will be handled separately.
+ * Also handles incomplete tool calls during streaming.
  */
 function formatMessageWithToolResults(
   content: string,
   toolInvocations?: ToolInvocation[],
 ): string {
-  // Remove all tool invocation blocks (that use the json_action tool) from the content using a regex.
+  // If we have an incomplete tool call or a tool call in progress,
+  // return only the content before the tool call
+  if (content.includes("<tool>")) {
+    const parts = content.split("<tool>");
+    return parts[0].trim();
+  }
+
+  // Remove all completed tool invocation blocks
   let cleanContent = content.replace(
     /<tool>json_action<\/tool>\s*{[\S\s]*?}\s*<\/tool>/g,
     "",
@@ -235,23 +250,28 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
     }
   }, [content]);
 
-  // Add these states
+  // Modify the processing state logic
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Add this effect to handle the processing state
+  // Update this effect to show processing state for 4 seconds when tool call is detected
   useEffect(() => {
-    if (content.includes("<tool>json_action</tool>")) {
+    if (content.includes("<tool>")) {
+      // Always start with processing state
       setIsProcessing(true);
       setShowSuccess(false);
 
-      // Show processing state for 1.5 seconds
+      // Set a timer to show success after 4 seconds
       const timer = setTimeout(() => {
         setIsProcessing(false);
         setShowSuccess(true);
-      }, 1500);
+      }, 3000);
 
       return () => clearTimeout(timer);
+    } else {
+      // No tool tags at all, reset everything
+      setIsProcessing(false);
+      setShowSuccess(false);
     }
   }, [content]);
 
@@ -295,7 +315,7 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
             ))}
           </div>
         )}
-        {!isUser && hadToolCall && (
+        {!isUser && content.includes("<tool>") && (
           <div className="mt-2 flex items-center justify-stretch w-full">
             <div className="rounded-md bg-green-100 px-3 py-2 flex items-center gap-2 w-full justify-center">
               {isProcessing ? (
@@ -305,14 +325,14 @@ export const ChatMessage: React.FC<ChatMessageProperties> = ({
                     Processing action...
                   </span>
                 </>
-              ) : showSuccess ? (
+              ) : (
                 <>
                   <Check className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-green-600">
                     {getSuccessMessage}
                   </span>
                 </>
-              ) : null}
+              )}
             </div>
           </div>
         )}

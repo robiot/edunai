@@ -33,7 +33,7 @@ const DecksPage = () => {
   // Get user data on component mount
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session?.user) {
-      setUserName(session.user.user_metadata.name.split || "User");
+      setUserName(session.user.user_metadata.name?.split(" ")[0] || "User");
     }
   });
 

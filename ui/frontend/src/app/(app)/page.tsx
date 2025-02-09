@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { Send, Sparkles } from "lucide-react";
+import { BookOpen, Castle, Languages, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -79,6 +79,45 @@ const DecksPage = () => {
               <Send className="w-4 h-4" />
             </Button>
           </form>
+          <div className="flex gap-4 text-sm flex-wrap">
+            <Button
+              className="border opacity-80 py-5 flex-1 gap-2"
+              onClick={() => {
+                setModalOpen(true);
+
+                setInitValue(
+                  "Create a new deck and create and add the following text as simple good flashcards: ",
+                );
+              }}
+            >
+              <BookOpen className="w-3 h-3" /> Make this into flashcards
+            </Button>
+            <Button
+              className="border opacity-80 py-5 flex-1 gap-2"
+              onClick={() => {
+                setModalOpen(true);
+
+                setInitValue(
+                  "Create an absolute beginner deck with the most important sentences with 20 cards for the following language: ",
+                );
+              }}
+            >
+              <Languages className="w-3 h-3" />
+              Simple language flashcards
+            </Button>
+            <Button
+              className="border opacity-80 py-5 flex-1 gap-2"
+              onClick={() => {
+                setModalOpen(true);
+
+                setInitValue(
+                  "Create a deck with flashcards for the following historic event: ",
+                );
+              }}
+            >
+              <Castle className="w-3 h-3" /> Historic event
+            </Button>
+          </div>
         </Container>
       </div>
       <Container className="mt-10 ">

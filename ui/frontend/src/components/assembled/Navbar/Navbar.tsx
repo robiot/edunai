@@ -35,7 +35,7 @@ export const Navbar: FC = () => {
   };
 
   return (
-    <div className="w-full sticky inset-0 border-b-border border-b h-16 bg-background">
+    <div className="w-full sticky z-50 inset-0 border-b-border border-b h-16 bg-background">
       <div
         className="w-full flex h-full justify-between items-center px-4"
 
